@@ -4,7 +4,7 @@ import { history } from 'umi';
 import { useUpdate } from '@/common/common';
 
 export default React.memo((props) => {
-  // console.log({ props });
+  console.log({ props });
   const [state, setState] = useUpdate({});
 
   return (

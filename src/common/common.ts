@@ -6,7 +6,6 @@ import { request } from 'umi';
 const MD5 = require('./core/md5.ts');
 const filesave = require('./core/filesave');
 
-console.log({ filesave, MD5 });
 
 export const pagination = {
   total: 0,
