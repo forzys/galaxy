@@ -1,0 +1,47 @@
+{
+    "name": "galaxy",
+    "author": "_foo",
+    "private": true,
+    "license": "MIT",
+    "version": "0.1.0",
+    "main": "main.js",
+    "homepage": "./",
+    "keywords": [
+      "electron"
+    ],
+    "description": "Electron Application",
+     
+    "scripts": {
+      "build-win32": "electron-builder --win --ia32",
+      "build-win64": "electron-builder --win --x64",
+      "build-mac": "electron-builder --mac",
+      "build-linux": "electron-builder --linux"
+    },
+    "devDependencies": {
+      "electron": "^13.1.0",
+      "electron-builder": "^22.10.5"
+    },
+    "build": {
+      "productName": "galaxy",
+      "appId": "galaxy",
+      "directories": {
+        "output": "dist"
+      },
+      "files": [
+        "build/**/*",
+        "main.js"
+      ],
+      "win": {
+        "target": "nsis"
+      },
+      "mac": {
+        "target": "dmg"
+      },
+      "nsis": {
+        "oneClick": false,
+        "allowToChangeInstallationDirectory": true
+      }
+    },
+    "dependencies": {}
+}
+  

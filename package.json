@@ -1,13 +1,15 @@
 {
   "private": true,
-  "main": "main.js",
   "scripts": {
     "start": "umi dev",
     "build": "umi build",
     "postinstall": "umi generate tmp",
     "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
     "test": "umi-test",
-    "test:coverage": "umi-test --coverage"
+    "test:coverage": "umi-test --coverage",
+    "start:electron": "cross-env NODE_ENV=development electron electron/main.js",
+    "build-win32": "umi build && electron-builder --win --ia32",
+    "build-win64": "umi build && electron-builder --win --x64"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"
@@ -22,6 +24,7 @@
   },
   "dependencies": {
     "@ant-design/pro-layout": "^6.5.0",
+    "micromark": "^3.0.7",
     "react": "17.x",
     "react-dom": "17.x",
     "umi": "^3.5.20"
@@ -31,10 +34,13 @@
     "@types/react-dom": "^17.0.0",
     "@umijs/preset-react": "1.x",
     "@umijs/test": "^3.5.20",
+    "cross-env": "^7.0.3",
     "electron": "^10.4.7",
+    "electron-builder": "^22.13.1",
     "lint-staged": "^10.0.7",
     "prettier": "^2.2.0",
     "typescript": "^4.1.2",
+    "webpack": "^5.60.0",
     "yorkie": "^2.0.0"
   }
 }

@@ -1,12 +1,12 @@
-import styles from './index.less';
-import PageNotFound from './404';
 
-export default function IndexPage() {
+import React from 'react'; 
+import Home from './home';
+
+export default React.memo(()=>{
   return (
     <div>
-      <h1 className={styles.title}>Pages index</h1>
-
-      <PageNotFound />
+      <h1 style={{textAlign:'center'}}>Galaxy</h1> 
+      <Home />
     </div>
   );
-}
+}) 

@@ -15,5 +15,7 @@ export default defineConfig({
   // },
   routes: routes,
   plugins: [],
-  fastRefresh:{},
+  fastRefresh:{}, 
+  publicPath:"./",
+  outputPath:"build"
 });

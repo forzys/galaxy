@@ -56,23 +56,26 @@ export default React.memo((props: any) => {
 	console.log({ props });
 
 	return (
-		<div style={{ display: 'flex', height: '100vh' }}>
-			<div style={{ width: 256 }}>
-				<Card>
-					<Menu>
-						<Menu.Item key="1" icon={''}>
-							Navigation One
-						</Menu.Item>
-						<Menu.Item key="2" icon={<div />}>
-							Navigation Two
-						</Menu.Item>
-					</Menu>
-				</Card>
-				<div>Todo</div>
-				<div>Wallpaper</div>
-				<div>Hotspot</div>
-			</div>
-			<PageContainer style={{ flex: 1 }}>{props.children}</PageContainer>
+		<div style={{ display: 'flex', height: '100vh', width:'100vw', padding:10 }}>
+			 
+			<Card className='_layout-menu' style={{ width: 256, marginRight:24, height:'100%',paddingTop:'10vh', paddingBottom:'10vh',}}>
+				<Menu>
+					<Menu.Item key="0" icon={<div />}>
+						<Link to='/'>Home</Link> 
+					</Menu.Item>
+					<Menu.Item key="1" icon={<div />}>
+						<Link to='/hotspot'>Navigation One</Link> 
+					</Menu.Item>
+					<Menu.Item key="2" icon={<div />}>
+						<Link to='/hotpots2'>Navigation Two</Link>
+					</Menu.Item>
+					<Menu.Item key="3" icon={<div />}>
+						<Link to='/hotpots3'>Navigation Thre</Link>
+					</Menu.Item>
+				</Menu>
+			</Card>  
+			
+			<Card className='_layout-content' style={{ flex:'auto', minWidth:256 }}>{props.children}</Card>
 		</div>
 	);
 });
