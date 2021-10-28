@@ -27,6 +27,11 @@ div{
     display: none;
   }
 }
+._layout-content{
+  max-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 
 ::-webkit-scrollbar{
   width: 0;
@@ -35,4 +40,36 @@ div{
   display: none;
   visibility: hidden;
   background: transparent; 
+}
+
+
+// .up-file {
+//   padding: 4px 10px;
+//   height: 40px;
+//   width: 240px;
+//   text-align: center;
+//   line-height: 40px;
+//   position: relative;
+//   cursor: pointer;
+//   background: #44bbff;
+//   color: #FFFFFF;
+//   border: 1px solid #ddd;
+//   border-radius: 4px;
+//   overflow: hidden;
+//   display: inline-block;
+//   *display: inline;
+//   *zoom: 1;
+// }
+.ant-btn input {
+  position: absolute;
+  font-size: 100px;
+  // right: 0;
+  left:0;
+  top: 0;
+  width:100%;
+  height:100%;
+
+  opacity: 0;
+  filter: alpha(opacity=0);
+  cursor: pointer;
 }

@@ -2,10 +2,9 @@ import React, { useEffect } from 'react';
 import { request, history } from 'umi'; 
 
 const MD5 = require('./core/md5.ts');
-const filesave = require('./core/filesave'); 
-
+const filesave = require('./core/filesave');
 const isReact = Symbol.for('react.element')
-
+ 
 
 export function isElectron() {
     // Renderer process
@@ -164,9 +163,10 @@ export function useUpdate(props:any = {}) {
 		});
 	};
 
-	const params = React.useMemo(() => ({ 
-		ref, request,
-		router: history,
+	const params = React.useMemo(() => ({
+		ref, request, router: history, 
+		electron: (window as any).electron, 
+		bridge: (window as any).electronBridge,
 	}), []);
 
 	useEffect(() => {

@@ -1,7 +1,9 @@
 // 引入electron并创建一个Browserwindow
-const { app, BrowserWindow } = require('electron');
+const { app,ipcMain, BrowserWindow } = require('electron');
+const { eventsList, isPromise } = require('./common')
 const path = require('path');
 const url = require('url');
+
 
 function createWindow() {
   	//创建窗口
@@ -18,16 +20,16 @@ function createWindow() {
 		darkTheme: true, 
 		frame: true,
 
-		width: 1700,
+		width: 1200,
 		height: 900,
-		minWidth:1300,
-		minHeight:900
+		minWidth:560,
+		minHeight:800
 	});
 
 	if (process.env.NODE_ENV === 'development') {
 		// 开发环境 加载页面并打开调试工具,根据 NODE_ENV 
 		mainWindow.loadURL('http://localhost:8000/');
-		// mainWindow.webContents.openDevTools();
+		mainWindow.webContents.openDevTools();
 
 	} else {
 		// 生产环境 加载html文件 这里的路径是umi输出的html路径
@@ -59,3 +61,38 @@ app.on('window-all-closed', () => {
 		app.quit();
 	}
 });
+
+
+// 渲染进程调用主进程注册的事件，主进程处理完毕之后，通过主进程向渲染进程发送结果
+// 统一采用异步通信方式 监听一个异步事件，处理所有的渲染进程触发的事件，请求主进程处理
+ipcMain.on('regist-event', (event, params) => {
+    // 处理异步操作
+    const nativeEvent = eventsList[params.eventName]
+    if (nativeEvent) {
+        const result = nativeEvent(app, params)
+        // 异步通信，结果处理完，主进程向渲染进程发送消息 
+        if (isPromise(result)) { 
+            result.then(res => {
+                event.sender.send('fire-event', {
+                    stamp: params.stamp,
+                    payload: res
+                })
+            }).catch(err => {
+                event.sender.send('fire-event', {
+                    stamp: params.stamp,
+                    error: err 
+                })
+            })
+        } else {
+            event.sender.send('fire-event', {
+                stamp: params.stamp,
+                payload: result
+            })
+        }
+    } else {
+        event.sender.send('fire-event', {
+            stamp: params.stamp,
+            error: new Error('event not support')
+        })
+    }
+})
