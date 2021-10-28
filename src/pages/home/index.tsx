@@ -39,7 +39,12 @@ export default React.memo((props) => {
 		const reader = new FileReader();
 		reader.onload = function (_e) { 
 			const text:any = _e?.target?.result 
-			const makedown = micromark(text, { allowDangerousHtml:true, extensions: [{disable: {null: ['codeText']}}] }) 
+			const makedown = micromark(text, { 
+				allowDangerousHtml:true, 
+				extensions: [{ 
+					 
+				}]
+			}) 
 		  	setState({ makedown }) 
 		} 
 		reader.readAsText(files[0])
