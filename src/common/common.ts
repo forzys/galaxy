@@ -1,28 +1,39 @@
 import React, { useEffect } from 'react';
-import { request, history } from 'umi'; 
+import { request, history } from 'umi';
 
 const MD5 = require('./core/md5.ts');
 const filesave = require('./core/filesave');
-const isReact = Symbol.for('react.element')
- 
+const isReact = Symbol.for('react.element');
 
 export function isElectron() {
-    // Renderer process
-    if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
-        return true;
-    }
+	// Renderer process
+	if (
+		typeof window !== 'undefined' &&
+		typeof window.process === 'object' &&
+		(window.process as any).type === 'renderer'
+	) {
+		return true;
+	}
 
-    // Main process
-    if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
-        return true;
-    }
+	// Main process
+	if (
+		typeof process !== 'undefined' &&
+		typeof process.versions === 'object' &&
+		!!process.versions.electron
+	) {
+		return true;
+	}
 
-    // Detect the user agent when the `nodeIntegration` option is set to false
-    if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
-        return true;
-    }
+	// Detect the user agent when the `nodeIntegration` option is set to false
+	if (
+		typeof navigator === 'object' &&
+		typeof navigator.userAgent === 'string' &&
+		navigator.userAgent.indexOf('Electron') >= 0
+	) {
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 // module.exports = isElectron;
@@ -37,8 +48,6 @@ export const pagination = {
 	showTotal: (total: any) => `Total: ${total}  `,
 	pageSizeOptions: ['5', '10', '20', '50', '100'],
 };
-
-
 
 export function onGetHtmlString(props: any): any {
 	if (typeof props === 'string') {
@@ -62,8 +71,8 @@ export function onGetHtmlString(props: any): any {
 			return _temp;
 		}
 	}
-  
-  	return '';
+
+	return '';
 }
 
 export function exportList(props: any) {
@@ -75,15 +84,21 @@ export function exportList(props: any) {
 		text += '\n';
 		for (let j in columns) {
 			const col = columns[j];
-			const isEval = columns[j].eval && columns[j].eval(index[col.dataIndex], index);
-			const isRender = !isEval && columns[j].render && columns[j].render(index[col.dataIndex], index);
+			const isEval =
+				columns[j].eval && columns[j].eval(index[col.dataIndex], index);
+			const isRender =
+				!isEval &&
+				columns[j].render &&
+				columns[j].render(index[col.dataIndex], index);
 			const isIndex = !isRender && index[col.dataIndex];
 			const value = isEval || isRender || isIndex || '';
 			text += `"${value}"`;
 			text += ',';
 		}
 	}
-	let blob = new Blob(['\uFEFF' + text], { type: 'text/plain;charset=utf-8' });
+	let blob = new Blob(['\uFEFF' + text], {
+		type: 'text/plain;charset=utf-8',
+	});
 	filesave.saveAs(blob, name);
 }
 
@@ -96,7 +111,6 @@ export function byteLength(str: string = '') {
 }
 
 export function numberFormat(num = '', decimals = 2, re = 1) {
-	
 	if (num === '' || num === null || Number.isNaN(+num)) {
 		return num;
 	}
@@ -105,21 +119,22 @@ export function numberFormat(num = '', decimals = 2, re = 1) {
 
 	value = (+num).toFixed(+decimals);
 
-	if (value.split('.').length > 1){
+	if (value.split('.').length > 1) {
 		return value.replace(/(\d)(?=(\d{3})+\.)/g, re ? '$1,' : '$1');
 	}
-	
+
 	return re ? value.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : value;
 }
 
-export function useUpdate(props:any = {}) {
+export function useUpdate(props: any = {}) {
 	const ref = React.useRef();
+	const { current } = React.useRef({});
 	const _self: any = React.useRef({});
 	const [, setUpdate] = React.useState(null);
 	const { current: state } = React.useRef(props);
 
 	function forceUpdate(condition: any, input: boolean | undefined) {
-		if (_self?.current?.timer){
+		if (_self?.current?.timer) {
 			_self?.current?.timer?.();
 		}
 		if (typeof condition === 'object') {
@@ -165,21 +180,27 @@ export function useUpdate(props:any = {}) {
 
 	//    //在下次 DOM 更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新后的 DOM。
 	//    document.getElementById("ririr").addEventListener("click",function(event){
-	// 	event.preventDefault();
-	// 	const { shell } = require('electron');
+	// 	  event.preventDefault();
+	// 	  const { shell } = require('electron');
 
 	// 	  shell.openExternal(this.href);
 	//   })
 
-	const params = React.useMemo(() => ({
-		ref, request, router: history, 
-		electron: (window as any).electron, 
-		bridge: (window as any).electronBridge,
-	}), []);
+	const params = React.useMemo(
+		() => ({
+			ref,
+			request,
+			router: history,
+			current,
+			electron: (window as any).electron,
+			bridge: (window as any).electronBridge,
+		}),
+		[],
+	);
 
 	useEffect(() => {
 		return () => {
-			if(_self.current.timer){
+			if (_self.current.timer) {
 				clearTimeout(_self.current.timer);
 			}
 		};
@@ -187,7 +208,6 @@ export function useUpdate(props:any = {}) {
 
 	return [state, forceUpdate, params];
 }
-
 
 // export function translate(keyword: string, option = {}) {
 //   let now = Date.now();
@@ -231,59 +251,57 @@ export function useUpdate(props:any = {}) {
 // }
 
 function asyncLoad(url: string) {
-  return new Promise((resolve) => {
-    const result = {
-      success: false,
-    };
-    const scriptElement = document.createElement('script');
-    scriptElement.async = true;
-    scriptElement.type = 'text/javascript';
-    scriptElement.onload = function (e) {
-      // console.log('外部资源加载成功',e)
-      result.success = true;
-      resolve(result);
-      scriptElement.remove();
-    };
-    scriptElement.onerror = function (e) {
-      // console.log('外部资源加载失败',e)
-      resolve(result);
-      scriptElement.remove();
-    };
-    scriptElement.src = url;
-    document.head.appendChild(scriptElement);
-  });
+	return new Promise((resolve) => {
+		const result = {
+			success: false,
+		};
+		const scriptElement = document.createElement('script');
+		scriptElement.async = true;
+		scriptElement.type = 'text/javascript';
+		scriptElement.onload = function (e) {
+			// console.log('外部资源加载成功',e)
+			result.success = true;
+			resolve(result);
+			scriptElement.remove();
+		};
+		scriptElement.onerror = function (e) {
+			// console.log('外部资源加载失败',e)
+			resolve(result);
+			scriptElement.remove();
+		};
+		scriptElement.src = url;
+		document.head.appendChild(scriptElement);
+	});
 }
 
 // 没有 op 将 tree 变成 object 类型方便取值查找
 // op 中传入 id  找到 tree 中对应id的值
 export function treeLoop(treeList: any, options: any): any {
-  const { key = 'key', id, leafs = !options } = options || {};
-  if (!Array.isArray(treeList)) return {};
+	const { key = 'key', id, leafs = !options } = options || {};
+	if (!Array.isArray(treeList)) return {};
 
-  if (leafs && typeof id === 'undefined') {
-    const params = typeof leafs === 'object' ? leafs : {};
+	if (leafs && typeof id === 'undefined') {
+		const params = typeof leafs === 'object' ? leafs : {};
 
-    for (let i = 0; i < treeList.length; i += 1) {
-      const { children, ...leaf } = treeList[i] || {};
-      params[leaf[key]] = leaf;
-      treeLoop(children, { ...options, leafs: params }); // 传入已展开叶子
-    }
-    return params;
-  }
+		for (let i = 0; i < treeList.length; i += 1) {
+			const { children, ...leaf } = treeList[i] || {};
+			params[leaf[key]] = leaf;
+			treeLoop(children, { ...options, leafs: params }); // 传入已展开叶子
+		}
+		return params;
+	}
 
-  if (!leafs && typeof id !== 'undefined') {
-    const find = treeList.find((item) => item[key] === id); // 寻找当前层树节点
-    if (find) return find;
-    let childrenFind = null; // 遍历后续树节点
-    for (let i = 0; i < treeList.length; i += 1) {
-      const children = (treeList[i] || {}).children;
-      childrenFind = treeLoop(children, options);
-      if (childrenFind) break;
-    }
-    return childrenFind;
-  }
+	if (!leafs && typeof id !== 'undefined') {
+		const find = treeList.find((item) => item[key] === id); // 寻找当前层树节点
+		if (find) return find;
+		let childrenFind = null; // 遍历后续树节点
+		for (let i = 0; i < treeList.length; i += 1) {
+			const children = (treeList[i] || {}).children;
+			childrenFind = treeLoop(children, options);
+			if (childrenFind) break;
+		}
+		return childrenFind;
+	}
 
-  return null;
+	return null;
 }
-
-

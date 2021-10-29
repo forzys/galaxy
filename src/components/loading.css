@@ -1,0 +1,276 @@
+/* loading type 1 */
+.loading1 {
+    width: 4.3em;
+    height: 9.8em;
+    margin: 0 auto;
+    font-size: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    animation: rotating 2s linear infinite;
+}
+
+@keyframes rotating {
+    0%, 90% {
+        transform: rotate(0);
+    }
+    
+    100% {
+        transform: rotate(0.5turn);
+    }
+}
+
+.loading1::after {
+    content: '';
+    position: absolute;
+    width: 0.2em;
+    height: 4.8em;
+    background-color: deepskyblue;
+    top: 1em;
+    animation: flow 2s linear infinite;
+}
+
+@keyframes flow {
+    10%, 100% {
+        transform: translateY(3.2em);
+    }
+}
+
+.loading1 .top,
+.loading1 .bottom {
+    width: 3.5em;
+    height: 3.5em;
+    border-style: solid;
+    border-color: saddlebrown;
+    border-width: 0.2em 0.2em 0.6em 0.6em;
+    border-radius: 50% 100% 50% 30%;
+    position: relative;
+    overflow: hidden;
+}
+
+.loading1 .top {
+    transform: rotate(-45deg);
+}
+
+.loading1 .bottom {
+    transform: rotate(135deg);
+}
+
+.loading1 .top::before,
+.loading1 .bottom::before {
+    content: '';
+    position: absolute;
+    width: inherit;
+    height: inherit;
+    background-color: deepskyblue;
+    animation: 2s linear infinite;
+}
+
+.loading1 .top::before {
+    border-radius: 0 100% 0 0;
+    animation-name: drop-sand;
+}
+
+@keyframes drop-sand {
+    to {
+        transform: translate(-2.5em, 2.5em);
+    }
+}
+
+.loading1 .bottom::before {
+    border-radius: 0 0 0 35%;
+    transform: translate(2.5em, -2.5em);
+    animation-name: fill-sand;
+}
+
+@keyframes fill-sand {
+    to {
+        transform: translate(0, 0);
+    }
+}
+ 
+
+
+
+
+/* loading type 2 */
+.loading2 {
+    width: 6em;
+    height: 1em;
+    margin: 0 auto;
+    font-size: 20px;
+    position: relative;
+    --duration: 3s;
+    --dots: 5;
+}
+
+.loading2 span {
+    position: absolute;
+    width: 1em;
+    height: 1em; 
+    background-color: deepskyblue;
+    border-radius: 50%;
+    top: 0;
+    left: 5em;
+    animation: 
+        walk linear infinite,
+        jump linear infinite,
+        squash linear infinite;
+    animation-duration: var(--duration);
+    animation-delay: calc(var(--n) * var(--duration) / var(--dots) * -1);
+}
+
+@keyframes walk {
+    0%, 95%, 100% {
+        left: 5em;
+    }
+
+    80%, 85% {
+        left: 0;
+    }
+}
+
+@keyframes jump {
+    80%, 100% {
+        top: 0;
+    }
+
+    85%, 95% {
+        top: -1em;
+    }
+}
+
+@keyframes squash {
+    80%, 100% {
+        width: 1em;
+        height: 1em;
+    }
+
+    90% {
+        width: 1.5em;
+        height: 0.8em;
+    }
+}
+
+.loading2 span:nth-child(1) {
+    --n: 1;
+}
+
+.loading2 span:nth-child(2) {
+    --n: 2;
+}
+
+.loading2 span:nth-child(3) {
+    --n: 3;
+}
+
+.loading2 span:nth-child(4) {
+    --n: 4;
+}
+
+.loading2 span:nth-child(5) {
+    --n: 5;
+}
+
+/* loading type 3 */
+
+.loading3 {
+    width: 5em;
+    height: 13em;
+    margin:0 auto;
+    font-size: 10px;
+    display: flex;
+    flex-direction: column;
+}
+ 
+.loading3::before {
+    content: '';
+    width: 5em;
+    height: 5em;
+    background-color: orangered;
+    border-radius: 50%;
+    animation: ball-jumping 1s ease-in-out infinite;
+}
+
+@keyframes ball-jumping {
+    20%, 80% {
+        transform: translateY(-2em);
+    }
+
+    50% {
+        transform: translateY(calc((8em - 5em) / 2));
+    }
+}
+ 
+.loading3::after {
+    content: '';
+    width: 5em;
+    height: 8em;
+    background-color: orange;
+    border-radius: 0.5em;
+    animation: rect-rotating 1s ease-in-out infinite;
+}
+
+@keyframes rect-rotating {
+    50% {
+        transform: rotate(90deg);
+    }
+
+    100% {
+        transform: rotate(180deg);
+    }
+}
+
+/* loading type 4 */
+.loading4 {
+    align-items: center;
+    background: #eeeeee;
+    border-radius: 50%;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    display: flex;
+    height: 10em;
+    justify-content: center; 
+    margin:1em auto;
+    width: 10em;
+    position: relative;
+}
+  
+.loading4 .spinner {
+    animation: spinnerTwo 1s linear infinite;
+    background: #4DB6AC;
+    border-radius: 100px;
+    height: 3em;
+    transform-origin: top;
+    position: absolute;
+    top: 50%;
+    width: .22em;
+  }
+  
+  .loading4  .hourHand {
+    animation: spinnerTwo 7s linear infinite;
+    background: #4DB6AC;
+    border-radius: 100px;
+    height: 2em;
+    transform-origin: top;
+    position: absolute;
+    top: 50%;
+    width: .2em;
+  }
+  
+  .loading4 .dot {
+    background: #4DB6AC;
+    border-radius: 100%;
+    height: .5em;
+    width: .5em;
+  }
+  
+  @keyframes spinnerTwo {
+    0% {
+      transform: rotate(0deg)
+    }
+    100% {
+      transform: rotate(360deg)
+    }
+  }

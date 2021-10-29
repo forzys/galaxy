@@ -1,75 +1,54 @@
 aside.ant-layout-sider.ant-pro-sider-layout-side {
-  background-color: transparent;
-  padding: 5px;
-  ul.ant-menu.ant-menu-root.ant-pro-sider-menu {
-    background-color: #001529;
-    // border-top-right-radius: 6px;
-    // border-bottom-right-radius: 6px;
-    border-radius: 6px;
-  }
+	background-color: transparent;
+	padding: 5px;
+	ul.ant-menu.ant-menu-root.ant-pro-sider-menu {
+		background-color: #001529;
+		// border-top-right-radius: 6px;
+		// border-bottom-right-radius: 6px;
+		border-radius: 6px;
+	}
 
-  .ant-pro-sider-links {
-    ul > li.ant-menu-item.ant-pro-sider-collapsed-button {
-      border: none;
-    }
-  }
+	.ant-pro-sider-links {
+		ul > li.ant-menu-item.ant-pro-sider-collapsed-button {
+			border: none;
+		}
+	}
 }
 
-
-
-div{
-  // outline: 1px solid red;
-}
-
-
-@media screen and (max-width:560px){
-  ._layout-menu{
-    display: none;
-  }
-}
-._layout-content{
-  max-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-::-webkit-scrollbar{
-  width: 0;
-  height:0;
-  opacity: 0;
-  display: none;
-  visibility: hidden;
-  background: transparent; 
-}
-
-
-// .up-file {
-//   padding: 4px 10px;
-//   height: 40px;
-//   width: 240px;
-//   text-align: center;
-//   line-height: 40px;
-//   position: relative;
-//   cursor: pointer;
-//   background: #44bbff;
-//   color: #FFFFFF;
-//   border: 1px solid #ddd;
-//   border-radius: 4px;
-//   overflow: hidden;
-//   display: inline-block;
-//   *display: inline;
-//   *zoom: 1;
+// div{
+//   // outline: 1px solid red;
 // }
-.ant-btn input {
-  position: absolute;
-  font-size: 100px;
-  // right: 0;
-  left:0;
-  top: 0;
-  width:100%;
-  height:100%;
 
-  opacity: 0;
-  filter: alpha(opacity=0);
-  cursor: pointer;
+@media screen and (max-width: 560px) {
+	._layout-menu {
+		display: none;
+	}
+}
+._layout-content {
+	max-height: 100vh;
+	overflow-x: hidden;
+	overflow-y: auto;
+	position: relative;
+}
+
+::-webkit-scrollbar {
+	width: 0;
+	height: 0;
+	opacity: 0;
+	display: none;
+	visibility: hidden;
+	background: transparent;
+}
+
+.ant-btn input {
+	position: absolute;
+	font-size: 100px;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+
+	opacity: 0;
+	filter: alpha(opacity=0);
+	cursor: pointer;
 }
