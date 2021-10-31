@@ -1,54 +1,88 @@
-import { Button, Result } from 'antd';
+import { Button, message, Spin } from 'antd';
 import React from 'react';
-import { history } from 'umi';
+import Dexie from 'dexie';
 import { useUpdate } from '@/common/common';
 
 export default React.memo((props) => {
-	// console.log({ props });
 	const [state, setState, { current }] = useUpdate({});
 
 	function onFilesDrag(e: any) {
-		console.log('onFilesDrag', { e });
+		e.preventDefault();
+		e.stopPropagation();
+		const files = e.dataTransfer.files;
+		setState.timeout({ loading: true }, 1000).then(() => {
+			const fileList: any = [];
+			console.log({ files });
+			files.forEach((file: any) => {
+				fileList.push({
+					path: file.path,
+					size: file.size,
+					last: file.lastModified,
+				});
+			});
+			console.log({ fileList });
+			message.success('success');
+			setState({ loading: false, fileList });
+		});
+
+		state.timer = setTimeout(() => {
+			current.dragBox.classList.remove('show');
+			current.dragBox.classList.add('hidden');
+		}, 0.3 * 1000);
 	}
+
 	function onDragEnter(e: any) {
 		if (current.dragBox) {
-			console.log('---', current.dragBox.classList);
 			current.dragBox?.classList?.remove('hidden');
 			current.dragBox?.classList?.add('show');
 		}
-
-		console.log('onDragEnter', { e, L: current });
 	}
-	function onDragLeave(e: any) {
-		if (current.dragBox) {
-			console.log('---', current.dragBox.classList);
-			current.dragBox.classList.remove('show');
-			current.dragBox.classList.add('hidden');
-		}
 
-		console.log('onDragLeave', { e, L: current });
+	function onDragLeave(e: any) {
+		e.preventDefault();
+		if (current.dragBox) {
+			if (state.timer) {
+				clearTimeout(state.timer);
+			}
+			state.timer = setTimeout(() => {
+				current.dragBox.classList.remove('show');
+				current.dragBox.classList.add('hidden');
+			}, 0.3 * 1000);
+		}
+	}
+
+	function onDragOver(e: any) {
+		e.preventDefault();
+		if (state.timer) {
+			clearTimeout(state.timer);
+		}
 	}
 
 	return (
-		<div
-			onDragEnter={onDragEnter}
-			onDragLeave={onDragLeave}
-			style={{ width: '100vh', height: '100vh' }}
-		>
-			<h1 style={{ textAlign: 'center' }}> 映射 </h1>
-			<div>hello</div>
-
-			<div style={{ width: '100%', display: 'flex', overflow: 'hidden' }}>
-				<div dangerouslySetInnerHTML={{ __html: state.makedown }} />
-			</div>
-
+		<Spin spinning={!!state?.loading}>
 			<div
-				className="drag_box hidden"
-				ref={(e) => {
-					current.dragBox = e;
+				onDragOver={onDragOver}
+				onDragEnter={onDragEnter}
+				onDragLeave={onDragLeave}
+				onDrop={(e) => {
+					e.preventDefault();
+					current.dragBox.classList.remove('show');
+					current.dragBox.classList.add('hidden');
 				}}
-				onDrag={onFilesDrag}
-			></div>
-		</div>
+				style={{ width: '100vh', height: '100vh' }}
+			>
+				<h1 style={{ textAlign: 'center' }}> 映射 </h1>
+				<div>hello</div>
+
+				<div
+					className="drag_box hidden"
+					ref={(e) => {
+						current.dragBox = e;
+					}}
+					onDrop={onFilesDrag}
+					onDragOver={(e) => e.preventDefault()}
+				></div>
+			</div>
+		</Spin>
 	);
 });

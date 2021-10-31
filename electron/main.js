@@ -18,7 +18,6 @@ function createWindow() {
 
 		darkTheme: true,
 		frame: true,
-		show: false,
 
 		width: 1200,
 		height: 900,
