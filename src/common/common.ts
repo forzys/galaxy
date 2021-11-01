@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { request, history } from 'umi';
+import Icons from './icon';
 
 const MD5 = require('./core/md5.ts');
 const filesave = require('./core/filesave');
 const isReact = Symbol.for('react.element');
 
+export { Icons };
 export function isElectron() {
 	// Renderer process
 	if (
