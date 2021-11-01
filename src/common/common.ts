@@ -38,7 +38,17 @@ export function isElectron() {
 	return false;
 }
 
-// module.exports = isElectron;
+export function filterSize(size: number) {
+	if (!size) return '';
+	if (size < Math.pow(1024, 1)) return size + ' B';
+	if (size < Math.pow(1024, 2))
+		return (size / Math.pow(1024, 1)).toFixed(2) + ' KB';
+	if (size < Math.pow(1024, 3))
+		return (size / Math.pow(1024, 2)).toFixed(2) + ' MB';
+	if (size < Math.pow(1024, 4))
+		return (size / Math.pow(1024, 3)).toFixed(2) + ' GB';
+	return (size / Math.pow(1024, 4)).toFixed(2) + ' TB';
+}
 
 export const pagination = {
 	total: 0,
@@ -116,15 +126,11 @@ export function numberFormat(num = '', decimals = 2, re = 1) {
 	if (num === '' || num === null || Number.isNaN(+num)) {
 		return num;
 	}
-
 	let value = String(Number(num));
-
 	value = (+num).toFixed(+decimals);
-
 	if (value.split('.').length > 1) {
 		return value.replace(/(\d)(?=(\d{3})+\.)/g, re ? '$1,' : '$1');
 	}
-
 	return re ? value.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : value;
 }
 
@@ -180,18 +186,11 @@ export function useUpdate(props: any = {}) {
 		});
 	};
 
-	//    //在下次 DOM 更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新后的 DOM。
-	//    document.getElementById("ririr").addEventListener("click",function(event){
-	// 	  event.preventDefault();
-	// 	  const { shell } = require('electron');
-
-	// 	  shell.openExternal(this.href);
-	//   })
-
 	const params = React.useMemo(
 		() => ({
 			ref,
 			request,
+			filterSize,
 			router: history,
 			current,
 			electron: (window as any).electron,
@@ -210,47 +209,6 @@ export function useUpdate(props: any = {}) {
 
 	return [state, forceUpdate, params];
 }
-
-// export function translate(keyword: string, option = {}) {
-//   let now = Date.now();
-//   if (!keyword.length) return Promise.resolve({ success: false });
-//   const params = {
-//     q: keyword,
-//     appid: '20210823000924725',
-//     salt: now,
-//     from: 'zh',
-//     to: 'en',
-//     sign: '',
-//     callback: 'callback_',
-//     ...option,
-//   };
-//   let _str = params.appid + params.q + params.salt + 'diaPQ5osiX1iM96daNIF';
-//   params.sign = MD5(_str);
-//   params.callback = 'callback_' + params.salt;
-//   let query: any[] = [];
-
-//   for (let key in params) {
-//     query[query.length] =
-//       encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
-//   }
-
-//   return new Promise((solve) => {
-//     window[params.callback] = function (data: any) {
-//       window[params.callback] = null;
-//       solve(data);
-//     };
-
-//     let _query = query.join('&').replace(/%20/g, '+');
-//     asyncLoad(`https://fanyi-api.baidu.com/api/trans/vip/translate?${_query}`);
-
-//     setTimeout(() => {
-//       if (window[params.callback]) {
-//         window[params.callback] = null;
-//         solve({ success: false });
-//       }
-//     }, 6000);
-//   });
-// }
 
 function asyncLoad(url: string) {
 	return new Promise((resolve) => {

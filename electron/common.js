@@ -1,5 +1,6 @@
 const { BrowserWindow, net } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const zlib = require('zlib');
 const querystring = require('querystring');
 const windowMap = {};
@@ -136,7 +137,48 @@ const eventsList = {
 		// createLoginWindow()
 		console.log('---login');
 	},
-	'is-file-directory': (app, params) => {},
+	'get-files-info': (app, params) => {
+		//遍历读取文件
+		function readFile(path, filesList) {
+			let files = fs.readdirSync(path); //需要用到同步读取
+			files.forEach((file) => {
+				let states = fs.statSync(path + '/' + file);
+				if (states.isDirectory()) {
+					readFile(path + '/' + file, filesList);
+				} else {
+					filesList.push({ size: states.size });
+				}
+			});
+		}
+
+		return new Promise((resolve) => {
+			const { files } = params;
+			function geFileInfo(path) {
+				let pathInfo = fs.statSync(path);
+				const result = {};
+				result.size = pathInfo.size;
+				result.directory = pathInfo.isDirectory();
+				result.pathInfo = pathInfo;
+
+				if (result.directory) {
+					let totalSize = 0;
+					let filesList = [];
+					readFile(path, filesList);
+					for (let i = 0; i < filesList.length; i++) {
+						let item = filesList[i];
+						totalSize += item.size;
+					}
+					result.size = totalSize;
+				}
+				return result;
+			}
+			const result = files.map((i) => {
+				const info = geFileInfo(i.path);
+				return { ...i, ...info };
+			});
+			resolve(result);
+		});
+	},
 	'net-request': (app, params) => {
 		const {
 			url,
