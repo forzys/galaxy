@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import ProLayout, { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Menu } from 'antd';
 import { Link } from 'umi';
+import Dexie from 'dexie';
 import { useUpdate } from '@/common/common';
 
 const waitTime = (time: number = 100) => {
@@ -13,7 +14,27 @@ const waitTime = (time: number = 100) => {
 };
 
 export default React.memo((props: any) => {
-	const [state, setState] = useUpdate({});
+	const [state, setState, { electron }] = useUpdate({});
+
+	// const db = new Dexie('files_pierced_database');
+	// db.version(1).stores({
+	// 	pierced: '++id, path, remote, last'
+	// })
+	// state.db = db
+
+	// const a = state.db.pierced.where('remote').equals('00000')
+
+	// console.log('hello',a)
+
+	// electron.ipcRenderer.on('get-database',(event, params, cb)=>{
+	// 	console.log({ event, params, cb })
+	// 	if(params.remote){
+	// 		state.db.pierced.where('remote').equals(params.remote).then(e=>{
+	// 			console.log({e})
+	// 			cb(e)
+	// 		})
+	// 	}
+	// })
 
 	return (
 		<div

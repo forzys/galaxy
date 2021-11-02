@@ -2,8 +2,10 @@ import React from 'react';
 import Loading from '@/components/activeLoading';
 import { Redirect } from 'umi';
 
+import { useUpdate } from '@/common/common';
+
 export default React.memo(() => {
-	const [state, setState] = React.useState({ loading: true });
+	const [state, setState, { electron }] = useUpdate({ loading: true });
 
 	React.useEffect(() => {
 		setTimeout(() => {

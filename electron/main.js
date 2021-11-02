@@ -3,6 +3,7 @@ const { app, ipcMain, BrowserWindow } = require('electron');
 const { eventsList, isPromise } = require('./common');
 const path = require('path');
 const url = require('url');
+const { fileServer } = require('./server');
 
 function createWindow() {
 	//创建窗口
@@ -24,6 +25,16 @@ function createWindow() {
 
 	if (process.env.NODE_ENV === 'development') {
 		// 开发环境 加载页面并打开调试工具,根据 NODE_ENV
+		fileServer((params) => {
+			console.log({ params });
+			return new Promise((resolve, reject) => {
+				const url = mainWindow.webContents.getURL();
+				console.log(url);
+
+				mainWindow.webContents.send('get-database', 'params');
+				resolve('1');
+			}).catch(() => {});
+		});
 		mainWindow.loadURL('http://localhost:8000/');
 		mainWindow.webContents.openDevTools();
 	} else {
@@ -36,6 +47,7 @@ function createWindow() {
 			}),
 		);
 	}
+
 	mainWindow.on('closed', function () {
 		mainWindow = null;
 	});

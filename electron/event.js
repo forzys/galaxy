@@ -22,7 +22,6 @@ ipcRenderer.on('fire-event', (event, arg) => {
 
 module.exports = {
 	// 原则是渲染进程能做的事情，就不要跟主进程进行通信了，否则需要借助主进程处理。
-
 	// 手动关闭登录窗口（退出程序）
 	onSetManualClose: (windowName = 'mainWindow') => {
 		// 兼容一个参数的情况
@@ -163,6 +162,22 @@ module.exports = {
 				},
 				params,
 			);
+		});
+	},
+
+	onGetDatabaseInfo: (params) => {
+		return new Promise((resolve) => {
+			if (params.remote) {
+				db.pierced
+					.where('remote')
+					.equals(params.remote)
+					.then((e) => {
+						console.log({ e });
+						resolve(e);
+					});
+			} else {
+				resolve('error');
+			}
 		});
 	},
 };
