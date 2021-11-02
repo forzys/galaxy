@@ -1,5 +1,11 @@
 // 引入electron并创建一个Browserwindow
-const { app, ipcMain, BrowserWindow } = require('electron');
+const {
+	app,
+	ipcMain,
+	protocol,
+	BrowserWindow,
+	MessageChannelMain,
+} = require('electron');
 const { eventsList, isPromise } = require('./common');
 const path = require('path');
 const url = require('url');
@@ -26,13 +32,22 @@ function createWindow() {
 	if (process.env.NODE_ENV === 'development') {
 		// 开发环境 加载页面并打开调试工具,根据 NODE_ENV
 		fileServer((params) => {
-			console.log({ params });
 			return new Promise((resolve, reject) => {
-				const url = mainWindow.webContents.getURL();
-				console.log(url);
-
-				mainWindow.webContents.send('get-database', 'params');
-				resolve('1');
+				const { port1, port2 } = new MessageChannelMain();
+				if (params) {
+					port2.postMessage(params);
+					port2.on('message', (event) => {
+						resolve(event.data);
+					});
+					port2.start();
+					mainWindow.webContents.postMessage(
+						'file-get-database',
+						params,
+						[port1],
+					);
+				} else {
+					resolve({ success: false });
+				}
 			}).catch(() => {});
 		});
 		mainWindow.loadURL('http://localhost:8000/');
@@ -47,6 +62,20 @@ function createWindow() {
 			}),
 		);
 	}
+
+	//===========自定义file:///协议的解析=======================
+	protocol.interceptFileProtocol(
+		'file',
+		(req, callback) => {
+			const url = req.url.substr(8);
+			callback(decodeURI(url));
+		},
+		(error) => {
+			if (error) {
+				console.error('Failed to register protocol');
+			}
+		},
+	);
 
 	mainWindow.on('closed', function () {
 		mainWindow = null;

@@ -7,21 +7,12 @@ export default React.memo((props) => {
 	const [
 		state,
 		setState,
-		{ current, electron, bridge, filterSize, md5 },
+		{ current, electron, bridge, filterSize, md5, db },
 	] = useUpdate({
 		pagination: { ...pagination, pageSize: 5 },
 	});
 
-	React.useEffect(() => {
-		const db = new Dexie('files_pierced_database');
-		db.version(1).stores({
-			pierced: '++id, path, remote, last',
-		});
-		// name: "Josephine", age: 21
-
-		state.db = db;
-		// console.log({ db })
-	}, []);
+	React.useEffect(() => {}, []);
 
 	function onFilesDrag(e: any) {
 		e.preventDefault();
@@ -33,7 +24,6 @@ export default React.memo((props) => {
 				const index = fileList.findIndex(
 					(f: any) => f.path === file.path,
 				);
-
 				const info: any = {
 					path: file.path,
 					size: file.size,
@@ -49,15 +39,13 @@ export default React.memo((props) => {
 					info.index = fileList.length;
 					fileList.push(info);
 				}
-
-				state?.db?.pierced?.add(info);
 			});
 
 			bridge
 				?.onGetFilesInfo?.({ files: fileList })
 				?.then((result: any) => {
 					message.success('success');
-
+					db?.pierced?.bulkPut(result);
 					setState({ loading: false, fileList: result });
 				});
 		});
@@ -95,11 +83,6 @@ export default React.memo((props) => {
 
 	const columns = React.useMemo(
 		() => [
-			{
-				title: '序号',
-				dataIndex: 'index',
-				render: (i: any) => i + 1,
-			},
 			{
 				title: '名称',
 				dataIndex: 'name',
@@ -162,7 +145,10 @@ export default React.memo((props) => {
 							<Popconfirm
 								icon={
 									<div>
-										<b style={{ color: '#ff7875' }}>注意</b>
+										{' '}
+										<b style={{ color: '#ff7875' }}>
+											注意
+										</b>{' '}
 										删除后远程将无法访问{' '}
 									</div>
 								}
@@ -211,7 +197,7 @@ export default React.memo((props) => {
 					state?.fileList?.length > 5 ? state.pagination : false
 				}
 				size="small"
-				rowKey="index"
+				rowKey="remote"
 				columns={columns}
 				dataSource={state?.fileList || []}
 				locale={{

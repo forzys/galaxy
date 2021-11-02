@@ -1,6 +1,42 @@
 const { ipcRenderer } = require('electron');
-
+const Dexie = require('dexie');
 const eventsMap = {};
+
+const db = new Dexie('files_pierced_database');
+db.version(1).stores({
+	pierced: '++id,&remote, path, last, status, size',
+});
+
+const windowLoaded = new Promise((resolve) => {
+	window.onload = resolve;
+});
+
+ipcRenderer.on('file-get-database', async (event, params) => {
+	await windowLoaded;
+	const [port] = event.ports;
+	port.onmessage = (event) => {
+		if (event?.data) {
+			const { remote } = event?.data;
+			if (remote === 0) {
+				db.pierced.toArray().then((res) => {
+					port.postMessage({ success: true, data: res });
+				});
+			} else {
+				db.pierced
+					.where(event?.data)
+					.toArray()
+					.then((res) => {
+						port.postMessage({ success: true, data: res });
+					})
+					.catch((e) => {
+						port.postMessage({ success: false, message: e });
+					});
+			}
+		} else {
+			port.postMessage({ success: false, message: null });
+		}
+	};
+});
 
 function registEvent(eventName, cb, params = {}) {
 	const stamp = String(new Date().getTime());
@@ -162,22 +198,6 @@ module.exports = {
 				},
 				params,
 			);
-		});
-	},
-
-	onGetDatabaseInfo: (params) => {
-		return new Promise((resolve) => {
-			if (params.remote) {
-				db.pierced
-					.where('remote')
-					.equals(params.remote)
-					.then((e) => {
-						console.log({ e });
-						resolve(e);
-					});
-			} else {
-				resolve('error');
-			}
 		});
 	},
 };

@@ -1,6 +1,12 @@
 import React, { useEffect } from 'react';
 import { request, history } from 'umi';
+import Dexie from 'dexie';
 import Icons from './icon';
+
+const db = new Dexie('files_pierced_database');
+db.version(1).stores({
+	pierced: '++id, path, &remote, last, status, size',
+});
 
 const md5 = require('./core/md5.ts');
 const filesave = require('./core/filesave');
@@ -187,12 +193,13 @@ export function useUpdate(props: any = {}) {
 
 	const params = React.useMemo(
 		() => ({
-			ref,
 			request,
-			filterSize,
-			md5,
-			router: history,
 			current,
+			md5,
+			ref,
+			db,
+			router: history,
+			filterSize,
 			electron: (window as any).electron,
 			bridge: (window as any).electronBridge,
 		}),
