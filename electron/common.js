@@ -86,7 +86,6 @@ const eventsList = {
 		loginWindow && loginWindow.close();
 		// !mainWindow && createWindow()
 	},
-
 	'create-new-window': (app, params) => {
 		if (
 			windowMap[params.windowName] &&
@@ -134,7 +133,6 @@ const eventsList = {
 	},
 	// 环境切换的时候，重新打开登录窗口
 	'open-login-window': () => {
-		// createLoginWindow()
 		console.log('---login');
 	},
 	'get-files-info': (app, params) => {

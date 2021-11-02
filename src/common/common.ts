@@ -2,13 +2,12 @@ import React, { useEffect } from 'react';
 import { request, history } from 'umi';
 import Icons from './icon';
 
-const MD5 = require('./core/md5.ts');
+const md5 = require('./core/md5.ts');
 const filesave = require('./core/filesave');
 const isReact = Symbol.for('react.element');
 
 export { Icons };
 export function isElectron() {
-	// Renderer process
 	if (
 		typeof window !== 'undefined' &&
 		typeof window.process === 'object' &&
@@ -191,6 +190,7 @@ export function useUpdate(props: any = {}) {
 			ref,
 			request,
 			filterSize,
+			md5,
 			router: history,
 			current,
 			electron: (window as any).electron,

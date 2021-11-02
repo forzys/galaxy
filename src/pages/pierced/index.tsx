@@ -4,7 +4,11 @@ import Dexie from 'dexie';
 import { useUpdate, Icons, pagination } from '@/common/common';
 
 export default React.memo((props) => {
-	const [state, setState, { current, bridge, filterSize }] = useUpdate({
+	const [
+		state,
+		setState,
+		{ current, electron, bridge, filterSize, md5 },
+	] = useUpdate({
 		pagination: { ...pagination, pageSize: 5 },
 	});
 
@@ -18,12 +22,15 @@ export default React.memo((props) => {
 				const index = fileList.findIndex(
 					(f: any) => f.path === file.path,
 				);
+
 				const info: any = {
 					path: file.path,
 					size: file.size,
 					last: file.lastModified,
 					name: file.path.split('\\').pop(),
+					remote: md5(file.path).substr(13, 6),
 				};
+
 				if (index !== -1) {
 					info.index = index;
 					fileList.splice(index, 1, info);
@@ -87,6 +94,23 @@ export default React.memo((props) => {
 				dataIndex: 'path',
 			},
 			{
+				title: '远程',
+				dataIndex: 'remote',
+				render: (re) => {
+					return (
+						<a
+							onClick={() => {
+								electron?.shell?.openExternal(
+									'http://*.vaiwan.com/' + re,
+								);
+							}}
+						>
+							http://*.vaiwan.com/{re}
+						</a>
+					);
+				},
+			},
+			{
 				title: '类型',
 				dataIndex: 'directory',
 				render: (dir: any) => (dir ? '文件夹' : '文件'),
@@ -123,8 +147,11 @@ export default React.memo((props) => {
 							<Popconfirm
 								icon={
 									<div>
-										<b style={{ color: '#ff7875' }}>注意</b>{' '}
-										删除后无法远程将无法访问
+										{' '}
+										<b style={{ color: '#ff7875' }}>
+											注意
+										</b>{' '}
+										删除后远程将无法访问{' '}
 									</div>
 								}
 								cancelText="取消"

@@ -12,13 +12,10 @@ function createWindow() {
 			webSecurity: false,
 			nodeIntegration: true,
 		},
-
 		backgroundColor: '#2e2c29',
 		title: 'Galaxy',
-
 		darkTheme: true,
 		frame: true,
-
 		width: 1200,
 		height: 900,
 		minWidth: 560,
