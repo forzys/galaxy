@@ -5,6 +5,7 @@ import Icons from './icon';
 
 const db = new Dexie('files_pierced_database');
 db.version(1).stores({
+	options: '++id, &uid, last, domain, port',
 	pierced: '++id, path, &remote, last, status, size',
 });
 
@@ -119,6 +120,15 @@ export function exportList(props: any) {
 	filesave.saveAs(blob, name);
 }
 
+function uuid() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+		/* eslint-disable no-bitwise */
+		const r = (Math.random() * 16) | 0;
+		const v = c === 'x' ? r : (r & 0x3) | 0x8;
+		return v.toString(16);
+	});
+}
+
 export function byteLength(str: string = '') {
 	let count = 0;
 	for (let i = 0, l = str.length; i < l; i += 1) {
@@ -196,6 +206,7 @@ export function useUpdate(props: any = {}) {
 			request,
 			current,
 			md5,
+			uuid,
 			ref,
 			db,
 			router: history,

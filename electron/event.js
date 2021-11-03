@@ -4,6 +4,7 @@ const eventsMap = {};
 
 const db = new Dexie('files_pierced_database');
 db.version(1).stores({
+	options: '++id, &uid, last, domain, port',
 	pierced: '++id,&remote, path, last, status, size',
 });
 
@@ -188,7 +189,17 @@ module.exports = {
 			);
 		});
 	},
-
+	onPiercedChange: (params) => {
+		return new Promise((resolve) => {
+			registEvent(
+				'open-file-server',
+				(data) => {
+					resolve(data);
+				},
+				params,
+			);
+		});
+	},
 	onGetFilesInfo: (params) => {
 		return new Promise((resolve) => {
 			registEvent(

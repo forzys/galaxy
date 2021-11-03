@@ -4,12 +4,11 @@ const {
 	ipcMain,
 	protocol,
 	BrowserWindow,
-	MessageChannelMain,
+	// MessageChannelMain,
 } = require('electron');
 const { eventsList, isPromise } = require('./common');
 const path = require('path');
 const url = require('url');
-const { fileServer } = require('./server');
 
 function createWindow() {
 	//创建窗口
@@ -31,25 +30,25 @@ function createWindow() {
 
 	if (process.env.NODE_ENV === 'development') {
 		// 开发环境 加载页面并打开调试工具,根据 NODE_ENV
-		fileServer((params) => {
-			return new Promise((resolve, reject) => {
-				const { port1, port2 } = new MessageChannelMain();
-				if (params) {
-					port2.postMessage(params);
-					port2.on('message', (event) => {
-						resolve(event.data);
-					});
-					port2.start();
-					mainWindow.webContents.postMessage(
-						'file-get-database',
-						params,
-						[port1],
-					);
-				} else {
-					resolve({ success: false });
-				}
-			}).catch(() => {});
-		});
+		// fileServer((params) => {
+		// 	return new Promise((resolve, reject) => {
+		// 		const { port1, port2 } = new MessageChannelMain();
+		// 		if (params) {
+		// 			port2.postMessage(params);
+		// 			port2.on('message', (event) => {
+		// 				resolve(event.data);
+		// 			});
+		// 			port2.start();
+		// 			mainWindow.webContents.postMessage(
+		// 				'file-get-database',
+		// 				params,
+		// 				[port1],
+		// 			);
+		// 		} else {
+		// 			resolve({ success: false });
+		// 		}
+		// 	}).catch(() => {});
+		// });
 		mainWindow.loadURL('http://localhost:8000/');
 		mainWindow.webContents.openDevTools();
 	} else {

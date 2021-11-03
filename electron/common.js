@@ -1,9 +1,11 @@
 const { BrowserWindow, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const zlib = require('zlib');
+const { fileServer } = require('./server');
 const querystring = require('querystring');
 const windowMap = {};
+
+const server = {};
 
 function isPromise(obj) {
 	return (
@@ -28,6 +30,70 @@ const eventsList = {
 				app.quit();
 			}
 		}
+	},
+	'open-file-server': (app, params) => {
+		const mainWindow = BrowserWindow.getFocusedWindow();
+		return new Promise((resolve) => {
+			if (params?.servered) {
+				if (!server.fileServer) {
+					server.fileServer = fileServer((query) => {
+						return new Promise((resolve, reject) => {
+							const { port1, port2 } = new MessageChannelMain();
+							if (query) {
+								port2.postMessage(query);
+								port2.on('message', (event) => {
+									resolve(event.data);
+								});
+								port2.start();
+								mainWindow.webContents.postMessage(
+									'file-get-database',
+									query,
+									[port1],
+								);
+							} else {
+								resolve({ success: false });
+							}
+						}).catch(() => {});
+					});
+				}
+				const port = params.port || 12345;
+				const domain = params.domain || 'domain';
+				server.fileServer.open({ port }).then((res) => {
+					let child = require('child_process').execFile;
+					let executablePath = path.join(__dirname, 'static/dd.exe');
+					let incognito = '-subdomain=' + domain + ' ' + port;
+					console.log({ incognito });
+					server.piercedServer = child(
+						executablePath,
+						[incognito],
+						function (err, data) {
+							console.log(err);
+							console.log(data.toString());
+						},
+					);
+					resolve({ success: true });
+				});
+			} else {
+				server.fileServer.close().then((res) => {
+					if (res.success) {
+						server.piercedServer.kill();
+						console.log({ kill: server.piercedServer });
+						resolve({ success: true });
+					}
+				});
+			}
+		});
+	},
+	'open-pierced': (app, params) => {
+		let child = require('child_process').execFile;
+		let executablePath = path.join(__dirname, 'static/dd.exe');
+		let incognito = '-subdomain=' + subdomain + ' ' + port;
+		let parameters = ['-subdomain=abcde 8080'];
+
+		child(executablePath, parameters, function (err, data) {
+			console.log(err);
+			console.log(data.toString());
+		});
 	},
 	// 关闭窗口
 	'window-close': (app, params) => {
@@ -156,7 +222,6 @@ const eventsList = {
 				const result = {};
 				result.size = pathInfo.size;
 				result.directory = pathInfo.isDirectory();
-				result.pathInfo = pathInfo;
 
 				if (result.directory) {
 					let totalSize = 0;

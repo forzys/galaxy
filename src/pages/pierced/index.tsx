@@ -1,18 +1,50 @@
-import { Button, Popconfirm, Switch, Empty, message, Spin, Table } from 'antd';
+import {
+	Button,
+	Popconfirm,
+	Switch,
+	Input,
+	Empty,
+	message,
+	Spin,
+	Table,
+	Card,
+} from 'antd';
 import React from 'react';
-import Dexie from 'dexie';
 import { useUpdate, Icons, pagination } from '@/common/common';
 
 export default React.memo((props) => {
 	const [
 		state,
 		setState,
-		{ current, electron, bridge, filterSize, md5, db },
+		{ uuid, current, electron, bridge, filterSize, md5, db },
 	] = useUpdate({
 		pagination: { ...pagination, pageSize: 5 },
+		port: 12345,
+		domain: 'abcd',
+		option: {},
 	});
 
-	React.useEffect(() => {}, []);
+	function onGetDomain() {
+		db?.options?.toArray().then((res: any) => {
+			if (res.length) {
+				const option = res?.[0];
+				setState({ option, domain: option.domain, port: option.port });
+			} else {
+				const uid = uuid();
+				const domain = uid.slice(0, 8);
+				const port = 12345;
+				const last = Date.now();
+				const option = { uid, domain, port, last };
+				setState({ option, domain, port }).then(() => {
+					db?.options?.put(option);
+				});
+			}
+		});
+	}
+
+	React.useEffect(() => {
+		onGetDomain();
+	}, []);
 
 	function onFilesDrag(e: any) {
 		e.preventDefault();
@@ -28,6 +60,7 @@ export default React.memo((props) => {
 					path: file.path,
 					size: file.size,
 					last: file.lastModified,
+					status: true,
 					name: file.path.split('\\').pop(),
 					remote: md5(file.path).substr(13, 6),
 				};
@@ -80,6 +113,28 @@ export default React.memo((props) => {
 			current.dragBox.classList.add('hidden');
 		}, 0.3 * 1000);
 	}
+	function onServerChange(servered: any) {
+		setState({ loading: true }).then(() => {
+			bridge
+				?.onPiercedChange?.({
+					port: state.port,
+					servered,
+					domain: state?.domain,
+				})
+				.then((res: any) => {
+					console.log({ res });
+					setState({ servered, loading: false }).then(() => {
+						const option = {
+							...state.option,
+							port: state.port,
+							domain: state.domain,
+							last: Date.now(),
+						};
+						db?.options?.put(option);
+					});
+				});
+		});
+	}
 
 	const columns = React.useMemo(
 		() => [
@@ -94,16 +149,11 @@ export default React.memo((props) => {
 			{
 				title: '远程',
 				dataIndex: 'remote',
-				render: (re) => {
+				render: (re: any) => {
+					const url = `http://${state.domain}.vaiwan.com/${re}`;
 					return (
-						<a
-							onClick={() => {
-								electron?.shell?.openExternal(
-									'http://*.vaiwan.com/' + re,
-								);
-							}}
-						>
-							http://*.vaiwan.com/{re}
+						<a onClick={() => electron?.shell?.openExternal(url)}>
+							{url}
 						</a>
 					);
 				},
@@ -126,7 +176,7 @@ export default React.memo((props) => {
 			{
 				title: '操作',
 				dataIndex: '_op',
-				render: (_, record: any) => {
+				render: (_: any, record: any) => {
 					return (
 						<div style={{ display: 'flex', alignItems: 'center' }}>
 							<Switch
@@ -145,11 +195,11 @@ export default React.memo((props) => {
 							<Popconfirm
 								icon={
 									<div>
-										{' '}
 										<b style={{ color: '#ff7875' }}>
-											注意
+											{' '}
+											注意{' '}
 										</b>{' '}
-										删除后远程将无法访问{' '}
+										删除后远程将无法访问
 									</div>
 								}
 								cancelText="取消"
@@ -164,6 +214,7 @@ export default React.memo((props) => {
 											return f;
 										},
 									);
+
 									setState({ fileList: [...state.fileList] });
 								}}
 							>
@@ -191,6 +242,69 @@ export default React.memo((props) => {
 			style={{ width: '100vh', height: '100vh' }}
 		>
 			<h1 style={{ textAlign: 'center' }}> 映射 </h1>
+
+			<Card>
+				<div
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						padding: 5,
+					}}
+				>
+					<div style={{ marginRight: 12 }}> 自定义二级域名 </div>
+					<Input
+						className="text-align-right"
+						style={{ width: 210 }}
+						prefix="http://"
+						suffix=".vaiwan.com"
+						defaultValue="mysite"
+						disabled={state.servered}
+						value={state.domain}
+						onChange={(e) =>
+							setState({
+								domain: e?.currentTarget?.value?.slice(0, 8),
+							})
+						}
+					/>
+				</div>
+
+				<div
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						padding: 5,
+					}}
+				>
+					<div style={{ marginRight: 12 }}> 自定义映射端口 </div>
+					<Input
+						style={{ width: 150 }}
+						value={state.port}
+						type="number"
+						disabled={state.servered}
+						onChange={(e) =>
+							setState({
+								port: e?.currentTarget?.value?.slice(0, 6),
+							})
+						}
+					/>
+				</div>
+
+				<div
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						padding: 5,
+					}}
+				>
+					<div style={{ marginRight: 26 }}> 本地服务管理 </div>
+					<Switch
+						checked={!!state.servered}
+						checkedChildren="开启"
+						unCheckedChildren="关闭"
+						onChange={onServerChange}
+					/>
+				</div>
+			</Card>
 
 			<Table
 				pagination={

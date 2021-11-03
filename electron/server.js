@@ -61,64 +61,168 @@ const template = (list) => {
 	</html>`;
 };
 
-function fileServer(callback) {
-	const server = http.createServer((req, res) => {
-		const url = decodeURIComponent(req.url);
-		const remote = url.split('/').pop();
+function fileServer(cb) {
+	let server;
+	let callback = cb;
+	// const server = http.createServer((req, res) => {
+	// 	const url = decodeURIComponent(req.url);
+	// 	const remote = url.split('/').pop();
 
-		if (remote === 'index.html') {
-			callback({ remote: 0 }).then((result) => {
-				if (result.success) {
-					res.writeHead(200, { 'Content-Type': 'text/html' });
-					res.end(template(result.data));
+	// 	if (remote === 'index.html') {
+	// 		callback({ remote: 0 }).then((result) => {
+	// 			if (result.success) {
+	// 				res.writeHead(200, { 'Content-Type': 'text/html' });
+	// 				res.end(template(result.data));
+	// 			} else {
+	// 				res.writeHead(404);
+	// 				res.end('404 Not Found');
+	// 			}
+	// 		});
+	// 	}
+
+	// 	callback({ remote }).then((result) => {
+	// 		// console.log('res:', res);
+	// 		if (result.success) {
+	// 			const file = result.data[0];
+	// 			if (file.directory) {
+	// 				let archive = archiver('zip', {
+	// 					zlib: { level: 9 }, // 设置压缩级别
+	// 				});
+	// 				archive.directory(path.resolve(file.path), false);
+	// 				res.writeHead(200);
+	// 				archive.pipe(res);
+	// 				archive.finalize();
+	// 			} else {
+	// 				fs.stat(file.path, (err, stats) => {
+	// 					if (!err) {
+	// 						// 这个header用于支持断点续传
+	// 						res.setHeader('Accept-Ranges', 'bytes');
+	// 						res.setHeader('Content-Length', stats.size);
+	// 						if (file.path.includes('.mp4')) {
+	// 							res.writeHead(200, {
+	// 								'Content-Type': 'video/mp4',
+	// 							});
+	// 						} else {
+	// 							res.writeHead(200);
+	// 						}
+	// 						// 返回一个流媒体
+	// 						fs.createReadStream(file.path).pipe(res);
+	// 					}
+	// 					if (err) {
+	// 						res.writeHead(404);
+	// 						res.end('404 Not Found');
+	// 					}
+	// 				});
+	// 			}
+	// 		}
+	// 	});
+	// }).listen(7888, '127.0.0.1', () => {
+	// 	// callback();
+	// });
+
+	// server.shutdown(function() {
+	// 	console.log('Everything is cleanly shutdown.');
+	//   });
+	return {
+		open: ({ port }) => {
+			return new Promise((resolve) => {
+				server = http
+					.createServer((req, res) => {
+						const url = decodeURIComponent(req.url);
+						const remote = url.split('/').pop();
+
+						if (!callback) {
+							res.writeHead(200);
+							res.end('Server Error');
+						}
+
+						if (remote === 'index.html') {
+							callback({ remote: 0 }).then((result) => {
+								if (result?.success) {
+									res.writeHead(200, {
+										'Content-Type': 'text/html',
+									});
+									res.end(template(result.data));
+								} else {
+									res.writeHead(404);
+									res.end('404 Not Found');
+								}
+							});
+						}
+
+						callback({ remote }).then((result) => {
+							if (result.success) {
+								const file = result.data[0];
+								if (file.directory) {
+									let archive = archiver('zip', {
+										zlib: { level: 9 }, // 设置压缩级别
+									});
+									archive.directory(
+										path.resolve(file.path),
+										false,
+									);
+									res.writeHead(200);
+									archive.pipe(res);
+									archive.finalize();
+								} else {
+									fs.stat(file.path, (err, stats) => {
+										if (!err) {
+											// 这个header用于支持断点续传
+											res.setHeader(
+												'Accept-Ranges',
+												'bytes',
+											);
+											res.setHeader(
+												'Content-Length',
+												stats.size,
+											);
+											if (file.path.includes('.mp4')) {
+												res.writeHead(200, {
+													'Content-Type': 'video/mp4',
+												});
+											} else {
+												res.writeHead(200);
+											}
+											// 返回一个流媒体
+											fs.createReadStream(file.path).pipe(
+												res,
+											);
+										}
+										if (err) {
+											res.writeHead(404);
+											res.end('404 Not Found');
+										}
+									});
+								}
+							}
+						});
+					})
+					.listen(port || 12345, '127.0.0.1', () => {
+						resolve(server);
+						server.on('clientError', (err, socket) => {
+							if (err.code === 'ECONNRESET' || !socket.writable) {
+								return;
+							}
+							socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+						});
+					});
+			});
+		},
+		close: () => {
+			return new Promise((resolve) => {
+				if (server) {
+					server?.close(function () {
+						console.log('Everything is cleanly shutdown.');
+						server = null;
+						resolve({ success: true });
+					});
 				} else {
-					res.writeHead(404);
-					res.end('404 Not Found');
+					resolve({ success: true });
 				}
 			});
-		}
-
-		callback({ remote }).then((result) => {
-			// console.log('res:', res);
-			if (result.success) {
-				const file = result.data[0];
-				if (file.directory) {
-					let archive = archiver('zip', {
-						zlib: { level: 9 }, // 设置压缩级别
-					});
-					archive.directory(path.resolve(file.path), false);
-					res.writeHead(200);
-					archive.pipe(res);
-					archive.finalize();
-				} else {
-					fs.stat(file.path, (err, stats) => {
-						if (!err) {
-							// 这个header用于支持断点续传
-							res.setHeader('Accept-Ranges', 'bytes');
-							res.setHeader('Content-Length', stats.size);
-							if (file.path.includes('.mp4')) {
-								res.writeHead(200, {
-									'Content-Type': 'video/mp4',
-								});
-							} else {
-								res.writeHead(200);
-							}
-							// 返回一个流媒体
-							fs.createReadStream(file.path).pipe(res);
-						}
-						if (err) {
-							res.writeHead(404);
-							res.end('404 Not Found');
-						}
-					});
-				}
-			}
-		});
-	});
-
-	server.listen(7888, '127.0.0.1', () => {
-		// callback();
-	});
+		},
+		isOpen: () => !!server,
+	};
 }
 
 module.exports = {
