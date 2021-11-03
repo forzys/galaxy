@@ -3,9 +3,8 @@ const Dexie = require('dexie');
 const eventsMap = {};
 
 const db = new Dexie('files_pierced_database');
-db.version(1).stores({
-	options: '++id, &uid, last, domain, port',
-	pierced: '++id,&remote, path, last, status, size',
+db.version(1).stores({ 
+	pierced: '++id, &remote, path, last, status, size',
 });
 
 const windowLoaded = new Promise((resolve) => {
@@ -16,10 +15,10 @@ ipcRenderer.on('file-get-database', async (event, params) => {
 	await windowLoaded;
 	const [port] = event.ports;
 	port.onmessage = (event) => {
-		if (event?.data) {
-			const { remote } = event?.data;
+		if (event?.data) { 
+			const { remote } = event?.data; 
 			if (remote === 0) {
-				db.pierced.toArray().then((res) => {
+				db.pierced.toArray().then((res) => { 
 					port.postMessage({ success: true, data: res });
 				});
 			} else {

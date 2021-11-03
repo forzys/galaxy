@@ -40,6 +40,12 @@ export default React.memo((props) => {
 				});
 			}
 		});
+
+		db?.pierced?.toArray().then((res: any) => {
+			if (res.length) { 
+				setState({ fileList: [...res] });
+			}
+		})
 	}
 
 	React.useEffect(() => {
@@ -53,16 +59,14 @@ export default React.memo((props) => {
 		setState({ loading: true }).then(() => {
 			const fileList: any = state.fileList || [];
 			files.forEach((file: any, i: number) => {
-				const index = fileList.findIndex(
-					(f: any) => f.path === file.path,
-				);
+				const index = fileList.findIndex((f: any) => f.path === file.path);
 				const info: any = {
 					path: file.path,
 					size: file.size,
 					last: file.lastModified,
 					status: true,
 					name: file.path.split('\\').pop(),
-					remote: md5(file.path).substr(13, 6),
+					remote: md5(file.path).substr(14, 6),
 				};
 
 				if (index !== -1) {

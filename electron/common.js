@@ -1,4 +1,4 @@
-const { BrowserWindow, net } = require('electron');
+const { BrowserWindow, net,MessageChannelMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { fileServer } = require('./server');
@@ -15,7 +15,33 @@ function isPromise(obj) {
 	);
 }
 
-const baseHost = '127.0.0.1';
+const baseHost = '127.0.0.1'; 
+
+
+
+const callback = (query) => {
+	let mainWindow = BrowserWindow.getAllWindows(); 
+	return new Promise((resolve) => {
+		const { port1, port2 } = new MessageChannelMain();
+   
+		if (query) {
+			port2.postMessage(query);
+			port2.on('message', (event) => {
+				resolve(event.data);
+			});
+			port2.start();
+	
+			mainWindow[0].webContents.postMessage(
+				'file-get-database',
+				query,
+				[port1],
+			);
+		} else {
+			resolve({ success: false });
+		}
+	}).catch(() => {});
+}
+
 
 const eventsList = {
 	// 手动关闭登录窗口（退出程序）,仅仅用于登录窗口，原因为何： 历史原因
@@ -32,69 +58,36 @@ const eventsList = {
 		}
 	},
 	'open-file-server': (app, params) => {
-		const mainWindow = BrowserWindow.getFocusedWindow();
-		return new Promise((resolve) => {
+	
+		let child = require('child_process').spawn;
+		return new Promise((resolve) => { 
 			if (params?.servered) {
-				if (!server.fileServer) {
-					server.fileServer = fileServer((query) => {
-						return new Promise((resolve, reject) => {
-							const { port1, port2 } = new MessageChannelMain();
-							if (query) {
-								port2.postMessage(query);
-								port2.on('message', (event) => {
-									resolve(event.data);
-								});
-								port2.start();
-								mainWindow.webContents.postMessage(
-									'file-get-database',
-									query,
-									[port1],
-								);
-							} else {
-								resolve({ success: false });
-							}
-						}).catch(() => {});
-					});
+				if (!server.fileServer) { 
+					server.fileServer = fileServer(callback);
 				}
 				const port = params.port || 12345;
 				const domain = params.domain || 'domain';
-				server.fileServer.open({ port }).then((res) => {
-					let child = require('child_process').execFile;
+				server.fileServer.open({ port }).then((res) => { 
 					let executablePath = path.join(__dirname, 'static/dd.exe');
-					let incognito = '-subdomain=' + domain + ' ' + port;
-					console.log({ incognito });
-					server.piercedServer = child(
-						executablePath,
-						[incognito],
-						function (err, data) {
-							console.log(err);
-							console.log(data.toString());
-						},
-					);
+					let configPath = path.join(__dirname, 'static/ding.cfg');
+					let incognito1 = '-config=' + configPath 
+					let incognito2 = '-subdomain=' + domain + ' ' + port; 
+					server.piercedServer = child(executablePath, [incognito1,incognito2],{ shell:'cmd.exe' });
+				
 					resolve({ success: true });
 				});
 			} else {
 				server.fileServer.close().then((res) => {
-					if (res.success) {
-						server.piercedServer.kill();
-						console.log({ kill: server.piercedServer });
+					if (res.success) { 
+						child('taskkill',['/f', '/t', '/im', 'dd.exe'])
+						child('taskkill',['/pid',server?.piercedServer?.pid]) 
 						resolve({ success: true });
 					}
 				});
 			}
 		});
 	},
-	'open-pierced': (app, params) => {
-		let child = require('child_process').execFile;
-		let executablePath = path.join(__dirname, 'static/dd.exe');
-		let incognito = '-subdomain=' + subdomain + ' ' + port;
-		let parameters = ['-subdomain=abcde 8080'];
-
-		child(executablePath, parameters, function (err, data) {
-			console.log(err);
-			console.log(data.toString());
-		});
-	},
+	 
 	// 关闭窗口
 	'window-close': (app, params) => {
 		// 获取操作的窗口

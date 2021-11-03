@@ -3,7 +3,7 @@ const http = require('http');
 const fs = require('fs');
 const archiver = require('archiver');
 
-const template = (list) => {
+const template = (list) => { 
 	return `<!DOCTYPE html>
 		<html lang="en">
 		<head>
@@ -50,7 +50,7 @@ const template = (list) => {
 							<li key=${i.remote}>
 								<div>${i.name} :</div>
 								<div>${i.path}</div>
-								<div><a href='http://localhost:7888/${i.remote}'>${i.remote}</a></div>
+								<div><a href='/${i.remote}'>${i.remote}</a></div>
 							</li>
 						`;
 					})
@@ -134,6 +134,11 @@ function fileServer(cb) {
 						if (!callback) {
 							res.writeHead(200);
 							res.end('Server Error');
+						} 
+
+						if(remote === ''){ 
+							res.writeHead(301, {'Location': `http://${req.headers.host}/index.html`});
+							res.end();
 						}
 
 						if (remote === 'index.html') {
