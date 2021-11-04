@@ -57,8 +57,20 @@ const eventsList = {
 			}
 		}
 	},
-	'open-file-server': (app, params) => {
-	
+	'set-wallpaper':(app, params)=>{
+		let child = require('child_process').spawn;
+		return new Promise((resolve)=>{ 
+			if (params?.wallpaper) {
+				// reg add "hkcu\control panel\desktop" /v wallpaper /d "新壁纸地址(绝对地址）" /f
+				const regs = ['add',`hkcu\\control panel\\desktop`, '/v', 'wallpaper','/d',params.wallpaper,'/f']
+				child('reg',regs)
+				child('RunDll32.exe',['USER32.DLL,UpdatePerUserSystemParameters'])  
+ 
+				resolve(true)
+			}
+		})
+	},
+	'open-file-server': (app, params) => {  
 		let child = require('child_process').spawn;
 		return new Promise((resolve) => { 
 			if (params?.servered) {

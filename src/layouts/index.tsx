@@ -60,32 +60,28 @@ export default React.memo((props: any) => {
 						<Link to="/">Home</Link>
 					</Menu.Item>
 					<Menu.Item key="1" icon={<div />}>
-						<Link to="/hotpots" title="热点">
-							{' '}
-							热点 Navigation One{' '}
+						<Link to="/hotpots" title="热点"> 
+							热点 Navigation One 
 						</Link>
 					</Menu.Item>
 					<Menu.Item key="2" icon={<div />}>
 						<Link to="/net_iptv" title="电视">
-							电视 Navigation Two{' '}
+							电视 Navigation Two 
 						</Link>
 					</Menu.Item>
 					<Menu.Item key="3" icon={<div />}>
-						<Link to="/pierced" title="映射">
-							{' '}
+						<Link to="/pierced" title="映射"> 
 							映射 Navigation Thre{' '}
 						</Link>
 					</Menu.Item>
 					<Menu.Item key="4" icon={<div />}>
-						<Link to="/m3u8" title="映射">
-							{' '}
-							M3U8 下载{' '}
+						<Link to="/m3u8" title="映射"> 
+							M3U8 下载 
 						</Link>
 					</Menu.Item>
 					<Menu.Item key="5" icon={<div />}>
-						<Link to="/m3u8" title="解析">
-							{' '}
-							解析 下载{' '}
+						<Link to="/wallpaper" title="壁纸"> 
+							壁纸 
 						</Link>
 					</Menu.Item>
 				</Menu>

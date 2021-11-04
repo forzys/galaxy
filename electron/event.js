@@ -210,4 +210,15 @@ module.exports = {
 			);
 		});
 	},
+	onSetWallpaper:(params)=>{
+		return new Promise(()=>{
+			registEvent(
+				'set-wallpaper',
+				(data) => {
+					resolve(data);
+				},
+				params,
+			); 
+		})
+	}
 };

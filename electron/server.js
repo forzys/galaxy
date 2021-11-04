@@ -137,7 +137,7 @@ function fileServer(cb) {
 						} 
 
 						if(remote === ''){ 
-							res.writeHead(301, {'Location': `http://${req.headers.host}/index.html`});
+							res.writeHead(301, {'Location': `/index.html`});
 							res.end();
 						}
 
