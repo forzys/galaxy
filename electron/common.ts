@@ -7,8 +7,8 @@ const child = require('child_process')
 const { BrowserWindow } = require('electron')
   
 
-export const regEdit = {
-    get:(params:any) => new Promise((resolve)=>{
+const regEdit = {
+    get:(params) => new Promise((resolve)=>{
         const { path, name, option } = params
         child.exec(`REG QUERY ${path} /v ${name}`, { ...option },(error,stdout,stderr)=>{ 
                 resolve({ success: true, result:{ stdout, stderr } })
@@ -17,7 +17,7 @@ export const regEdit = {
               }
           })
     }),
-    set:(params:any) => new Promise((resolve)=>{
+    set:(params) => new Promise((resolve)=>{
         const { path, name, value, option } = params
         child.exec(`reg add ${path} /v ${name} /t REG_SZ /d ${value} /f`,{...option}, (error,stdout,stderr)=>{ 
             resolve({ success: true, result:{ stdout, stderr } })
@@ -26,7 +26,7 @@ export const regEdit = {
             }
         }) 
     }),
-    del:(params:any)=>new Promise((resolve)=>{
+    del:(params)=>new Promise((resolve)=>{
         const { path, value, option } = params 
         child.exec(`reg delete ${path} /v ${value} /f`, {...option},(error,stdout,stderr)=>{ 
             resolve({ success: true, result:{ stdout, stderr } })
@@ -35,7 +35,7 @@ export const regEdit = {
             }
         })
     }),
-    cmd:(params:any)=>new Promise((resolve)=>{
+    cmd:(params)=>new Promise((resolve)=>{
         const { path, option } = params 
         child.exec(path, {...option }, (error,stdout,stderr)=>{ 
             resolve({ success: true, result:{ stdout, stderr } })
@@ -44,7 +44,7 @@ export const regEdit = {
             }
         })
     }),
-    kill:(params:any)=>new Promise((resolve)=>{
+    kill:(params)=>new Promise((resolve)=>{
         const { pid = [], name =[] , option} = params
         let killStr = 'taskkill '
         if(pid.length){
@@ -62,13 +62,20 @@ export const regEdit = {
     }),
 } 
 
-export const common = {
-    ewindows:()=>{
-        const ewindows = BrowserWindow.getAllWindows();
-
-        return {
-            length:ewindows.length,
-            ewindow: ewindows, 
+let common = {
+    Events:{
+        ewindows:()=>{
+            const ewindows = BrowserWindow.getAllWindows();
+            return {
+                length:ewindows.length,
+                ewindow: ewindows, 
+            }
         }
     }
+    
 }
+
+module.exports = {
+	common,
+	regEdit,
+};
