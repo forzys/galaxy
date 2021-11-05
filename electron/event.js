@@ -211,7 +211,7 @@ module.exports = {
 		});
 	},
 	onSetWallpaper:(params)=>{
-		return new Promise(()=>{
+		return new Promise((resolve)=>{
 			registEvent(
 				'set-wallpaper',
 				(data) => {

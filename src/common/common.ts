@@ -213,6 +213,7 @@ export function useUpdate(props: any = {}) {
 			filterSize,
 			electron: (window as any).electron,
 			bridge: (window as any).electronBridge,
+			handle: (window as any).electronHandle,
 		}),
 		[],
 	);

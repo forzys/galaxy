@@ -3,9 +3,8 @@ const path = require('path');
 const fs = require('fs');
 const { fileServer } = require('./server');
 const querystring = require('querystring');
-const windowMap = {};
-
-const server = {};
+const windowMap = {}
+const server = {}
 
 function isPromise(obj) {
 	return (
@@ -16,7 +15,6 @@ function isPromise(obj) {
 }
 
 const baseHost = '127.0.0.1'; 
-
 
 
 const callback = (query) => {
@@ -62,9 +60,10 @@ const eventsList = {
 		return new Promise((resolve)=>{ 
 			if (params?.wallpaper) {
 				// reg add "hkcu\control panel\desktop" /v wallpaper /d "新壁纸地址(绝对地址）" /f
-				const regs = ['add',`hkcu\\control panel\\desktop`, '/v', 'wallpaper','/d',params.wallpaper,'/f']
+				const regs = ['add',`hkcu\\control panel\\desktop`, '/v', 'wallpaper','/d', params.wallpaper,'/f']
 				child('reg',regs)
-				child('RunDll32.exe',['USER32.DLL,UpdatePerUserSystemParameters'])  
+				child('RunDll32.exe',['USER32.DLL,UpdatePerUserSystemParameters']) 
+				 
  
 				resolve(true)
 			}
@@ -84,8 +83,7 @@ const eventsList = {
 					let configPath = path.join(__dirname, 'static/ding.cfg');
 					let incognito1 = '-config=' + configPath 
 					let incognito2 = '-subdomain=' + domain + ' ' + port; 
-					server.piercedServer = child(executablePath, [incognito1,incognito2],{ shell:'cmd.exe' });
-				
+					server.piercedServer = child(executablePath, [incognito1,incognito2],{ shell:'cmd.exe' })
 					resolve({ success: true });
 				});
 			} else {

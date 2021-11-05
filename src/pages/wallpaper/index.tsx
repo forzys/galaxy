@@ -3,7 +3,7 @@ import React from 'react';
 import { useUpdate } from '@/common/common';
 
 export default React.memo((props) => { 
-  const [state, setState, { bridge, current}] = useUpdate({});
+  const [state, setState, { bridge,handle, current}] = useUpdate({});
 
   function onFilesDrag(e: any) {
 	e.preventDefault();
@@ -44,6 +44,9 @@ export default React.memo((props) => {
 			current.dragBox.classList.add('hidden');
 		}, 0.3 * 1000);
 	} 
+
+
+	console.log({ handle })
  
 	return (
 	<div
@@ -58,7 +61,7 @@ export default React.memo((props) => {
 		}}
 		style={{ width: '100vh', height: '100vh' }}
 	>
-		<h1 style={{ textAlign: 'center' }}> 壁纸 </h1>
+		<h1 style={{ textAlign: 'center' }} onClick={()=>{handle?.({a:9})}}> 壁纸 </h1>
 
 	  
 		<div
