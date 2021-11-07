@@ -10,9 +10,7 @@ export default React.memo((props) => {
 	e.stopPropagation();
 	const files = e.dataTransfer.files;
 	console.log({files})
-
-	
-
+ 
 	if(files[0]?.path) bridge
 	?.onSetWallpaper?.({ wallpaper: files[0]?.path })
 	?.then((result: any) => {
@@ -61,7 +59,10 @@ export default React.memo((props) => {
 		}}
 		style={{ width: '100vh', height: '100vh' }}
 	>
-		<h1 style={{ textAlign: 'center' }} onClick={()=>{handle?.({a:9})}}> 壁纸 </h1>
+		<h1 style={{ textAlign: 'center' }} onClick={()=>{
+			handle?.({ name: 'test', a:9}).then((res)=>{
+			console.log('success',res)
+		})}}> 壁纸 </h1>
 
 	  
 		<div

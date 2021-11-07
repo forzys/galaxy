@@ -6,8 +6,7 @@ const { app, protocol, ipcMain, BrowserWindow } = require('electron')
 
 const urls = require('url');
 const path = require('path'); 
-const {common} = require('./common.ts')
-// win.loadURL('https://github.com')
+const common = require('./common/commonMain')
 
 let win
 
@@ -47,44 +46,40 @@ const onWindowsMain = ()=>{
     },e=>{
         console.log('Error: protocol---->'+ e)
     })
+
+	win.on('closed',()=> win = null)
 }
-
  
-
-app.on('ready', () => {
-    onWindowsMain()
-
-
-    app.on('activate', ()=>{
-        common.ewindows().length === 0 && onWindowsMain()
-    })
-})
-
-
-
 app.on('window-all-closed', () => {
     process.platform !== 'darwin' && app.quit()
 })
 
-
-ipcMain.handle('render-handle-ipc', (event, params) => { 
-    return new Promise((resolve)=>{
-        console.log('success in : render-handle-ipc')
-        if(params?.handle){
-            if(common?.Events[params?.handle]){
-                common?.Events[params?.handle]?.(params)?.then(result=>{
-                    resolve({ success: true, result })
-                })
-            }else{
-                resolve({ success: false, result:'not find handle' })
-            }
-        }
-        resolve({ success: false, result:'not find handle' })
+app.on('ready', () => {
+    onWindowsMain()
+    app.on('activate', ()=>{
+        common?.Events?.ewindows().length === 0 && onWindowsMain()
     })
 })
-  
-//   // 渲染进程
-//   async () => {
-//     const result = await ipcRenderer.invoke('my-invokable-ipc', arg1, arg2)
-//     // ...
-//   }
+ 
+ipcMain.handle('render-handle-ipc', (event, params) => { 
+    return new Promise((resolve)=>{ 
+        if(params?.name){
+			let Events = common
+			params.name.split('.').forEach(n=>{
+				if(Events[n]){
+					Events = Events[n]
+				}
+			}) 
+            if(Events){
+				Events?.(params).then(result=>{ 
+					resolve({ success: true, result })
+				})
+            }else{
+                resolve({ success: false, result:'not find name' })
+            }
+        }else{
+			resolve({ success: false, result:'not find name' })
+		} 
+    }).catch(e=>{ console.log('-- se', e)})
+})
+ 

@@ -1,3 +1,4 @@
+import { CopyOutlined,  } from '@ant-design/icons';
 export default {
 	Empty: (
 		<svg
@@ -49,4 +50,5 @@ export default {
 			/>
 		</svg>
 	),
+	Copy: <CopyOutlined /> 
 };

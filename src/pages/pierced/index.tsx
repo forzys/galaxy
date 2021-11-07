@@ -1,23 +1,10 @@
-import {
-	Button,
-	Popconfirm,
-	Switch,
-	Input,
-	Empty,
-	message,
-	Spin,
-	Table,
-	Card,
-} from 'antd';
+
 import React from 'react';
+import { Button, Popconfirm, Switch, Input, Empty, message, Spin, Table, Card} from 'antd';
 import { useUpdate, Icons, pagination } from '@/common/common';
 
 export default React.memo((props) => {
-	const [
-		state,
-		setState,
-		{ uuid, current, electron, bridge, filterSize, md5, db },
-	] = useUpdate({
+	const [ state, setState, {handle, uuid, current, electron, bridge, filterSize, md5, db }] = useUpdate({
 		pagination: { ...pagination, pageSize: 5 },
 		port: 12345,
 		domain: 'abcd',
@@ -104,7 +91,6 @@ export default React.memo((props) => {
 	function onDragLeave(e: any) {
 		e.preventDefault();
 	}
-
 	function onDragOver(e: any) {
 		e.preventDefault();
 		if (state.timer) {
@@ -118,26 +104,35 @@ export default React.memo((props) => {
 		}, 0.3 * 1000);
 	}
 	function onServerChange(servered: any) {
-		setState({ loading: true }).then(() => {
-			bridge
-				?.onPiercedChange?.({
-					port: state.port,
-					servered,
-					domain: state?.domain,
-				})
-				.then((res: any) => {
-					console.log({ res });
-					setState({ servered, loading: false }).then(() => {
-						const option = {
-							...state.option,
-							port: state.port,
-							domain: state.domain,
-							last: Date.now(),
-						};
-						db?.options?.put(option);
-					});
-				});
-		});
+
+		
+		setState({ servered }).then(()=>{
+			let name = servered?'Events.openServer':'Events.closeServer'
+			handle?.({ name , a:9}).then((res)=>{
+				console.log('success',res)
+			})
+		})
+
+		// setState({ loading: true }).then(() => {
+		// 	bridge
+		// 		?.onPiercedChange?.({
+		// 			port: state.port,
+		// 			servered,
+		// 			domain: state?.domain,
+		// 		})
+		// 		.then((res: any) => {
+		// 			console.log({ res });
+		// 			setState({ servered, loading: false }).then(() => {
+		// 				const option = {
+		// 					...state.option,
+		// 					port: state.port,
+		// 					domain: state.domain,
+		// 					last: Date.now(),
+		// 				};
+		// 				db?.options?.put(option);
+		// 			});
+		// 		});
+		// });
 	}
 
 	const columns = React.useMemo(
@@ -230,7 +225,7 @@ export default React.memo((props) => {
 			},
 		],
 		[],
-	);
+	) 
 
 	return (
 		<div
@@ -243,7 +238,7 @@ export default React.memo((props) => {
 				current.dragBox.classList.remove('show');
 				current.dragBox.classList.add('hidden');
 			}}
-			style={{ width: '100vh', height: '100vh' }}
+			style={{ width: '100%', height: '100vh' }}
 		>
 			<h1 style={{ textAlign: 'center' }}> 映射 </h1>
 
@@ -258,9 +253,18 @@ export default React.memo((props) => {
 					<div style={{ marginRight: 12 }}> 自定义二级域名 </div>
 					<Input
 						className="text-align-right"
-						style={{ width: 210 }}
-						prefix="http://"
-						suffix=".vaiwan.com"
+						style={{ width: 225 }}
+						prefix="http://" 
+						suffix={
+						<div>
+							<span style={{marginRight:6}}>.vaiwan.com</span> 
+							<a onClick={(e:any)=>{
+									e.stopPropagation();
+									e.preventDefault();
+									electron?.clipboard?.writeText('http://'+state.domain+'.vaiwan.com')
+									message.success('已复制')
+							}}> {Icons.Copy} </a>
+						</div>}
 						defaultValue="mysite"
 						disabled={state.servered}
 						value={state.domain}
@@ -334,6 +338,7 @@ export default React.memo((props) => {
 				ref={(e) => {
 					current.dragBox = e;
 				}}
+				children='拖动到这里'
 			/>
 		</div>
 	);

@@ -89,7 +89,7 @@ export default React.memo((props: any) => {
 
 			<Card
 				className="_layout-content"
-				style={{ flex: 'auto', minWidth: 256 }}
+				style={{ flex: 1, minWidth: 256  }}
 			>
 				{props.children}
 			</Card>
