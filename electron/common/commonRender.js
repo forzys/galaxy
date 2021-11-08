@@ -3,7 +3,9 @@
 const { Callback } = require('./commonMain')
 const Dexie = require('dexie') 
 
-let renderCommon ={
+ 
+
+let common ={
     Events:{
 		test: (params)=>{
 			return new Promise((resolve)=>{ 
@@ -18,10 +20,9 @@ let renderCommon ={
 		}
     },
 	DataBase:{
-		open:(params)=>{
+		open:(table)=>{
 			console.log('open',{params})
-			return new Promise((resolve)=>{
-				
+			return new Promise((resolve)=>{ 
 				// 打开已经存在的数据库
 				new Dexie('Galaxy').open().then((db)=> {
 					console.log({db})
@@ -32,9 +33,10 @@ let renderCommon ={
 					// 	console.log ("Table Schema: " +
 					// 		JSON.stringify(table.schema, null, 4));
 					// }) 
-					const table = db.table(name)
-					resolve(table)
-					resolve({success: false, data:''})
+					resolve(db.table(table))
+					// const table = db.table(table)
+					// resolve(table)
+					// resolve({success: false, data:''})
 					// if(db.tables(name)){
 					// 	resolve(db.table(name))
 					// }
@@ -47,14 +49,19 @@ let renderCommon ={
 				})
 			}) 
 		},
-		get:()=>{ 
-			renderCommon.DataBase.open('test').then((table)=>{
-				console.log(table)
-			})
-		
+		get:(params)=>{ 
+			return new Promise(()=>{
+				renderCommon.DataBase.open( params?.table || 'test').then((table)=>{
+					console.log(table)
+
+					table.get(params.remote).then(res=>{
+						resolve(res)
+					}) 
+				})
+			}).catch(e=>{ console.log(e) })
 		},
 		set:()=>{ },
 		del:()=>{ },
 	}
 } 
-module.exports = renderCommon
+module.exports = common

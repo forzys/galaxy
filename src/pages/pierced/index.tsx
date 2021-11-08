@@ -104,11 +104,10 @@ export default React.memo((props) => {
 		}, 0.3 * 1000);
 	}
 	function onServerChange(servered: any) {
-
-		
+ 
 		setState({ servered }).then(()=>{
-			let name = servered?'Events.openServer':'Events.closeServer'
-			handle?.({ name , a:9}).then((res)=>{
+			let name = servered ?'Events.openServer':'Events.closeServer'
+			handle?.({ handle: name , a:9}).then((res)=>{
 				console.log('success',res)
 			})
 		})

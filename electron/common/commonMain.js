@@ -23,26 +23,24 @@ const common = {
 				},3000)
 			}).catch(e=>{ console.log({ e })})
 		},
-		openServer:(params)=>{
-			console.log('------')
+		openServer:(params)=>{ 
 			return new Promise((resolve)=>{
 				let { domain='zys123', port = 12345 } = params
 				Server.listen(port,()=>{ 
-					let executablePath = path.join(__dirname, '../static/dd.exe');
+					let executPath = path.join(__dirname, '../static/dd.exe');
 					let configPath = path.join(__dirname, '../static/dd.cfg');
 					let incognito1 = '-config=' + configPath 
 					let incognito2 = '-subdomain=' + domain + ' ' + port
-					let cmdpath = [executablePath,incognito1,incognito2].join(' ')
-					common.RegEdit.cmd({ path:cmdpath, option:{ shell:'cmd.exe' } })
-					console.log('------success',)
+					let cmdpath = [executPath,incognito1,incognito2].join(' ')
+					common.RegEdit.cmd({ path:cmdpath, option:{ shell:'cmd.exe' }})
 					resolve({ scuess: true })
 				})
-			}) 
+			})
 		},
 		closeServer:()=>{ 
 			return new Promise((resolve)=>{
 				Server?.close(function () {
-					console.log('Everything is cleanly shutdown.'); 
+					// console.log('Everything is cleanly shutdown.'); 
 					common.RegEdit.kill({ name:['dd.exe']  })
 					resolve({ success: true })
 				})
@@ -59,9 +57,10 @@ const common = {
 				  }
 			  })
 		}),
-		set:(params) => new Promise((resolve)=>{
-			const { path, name, value, option } = params
-			child.exec(`reg add ${path} /v ${name} /t REG_SZ /d ${value} /f`,{...option}, (error,stdout,stderr)=>{ 
+		set:(params) => new Promise((resolve)=> {
+			const { path, name, value, option } = params 
+			let regs = `reg add ${path} /v ${name} /d ${value} /f && RunDll32.exe USER32.DLL,UpdatePerUserSystemParameters`
+			child.exec(regs,{...option}, (error,stdout,stderr)=>{ 
 				resolve({ success: true, result:{ stdout, stderr } })
 				if(error != null){ 
 					resolve({ success: false, result: error })
@@ -105,14 +104,15 @@ const common = {
 		}),
 	},
 	Callback : (query) => {
-		let win = BrowserWindow.getAllWindows() 
+		let win = BrowserWindow.getAllWindows()
+		let content = win?.[0]?.webContents
 		return new Promise((resolve) => {
 			const { port1, port2 } = new MessageChannelMain()
 			if (query) {
 				port2.postMessage(query) 
 				port2.on('message', (event) => resolve(event.data))
 				port2.start()
-				win[0]?.webContents?.postMessage('main-handle-ipc',query, [port1]); 
+				content?.postMessage('main-handle-ipc',query, [port1]); 
 			} else {
 				resolve({ success: false })
 			}
@@ -244,8 +244,7 @@ var Requests = (params) => {
 				}
 			});
 			response.on('end', () => resolve(result));
-		})
- 
+		}) 
 		request.end()
 	});
 }

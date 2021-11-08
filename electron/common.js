@@ -64,7 +64,6 @@ const eventsList = {
 				child('reg',regs)
 				child('RunDll32.exe',['USER32.DLL,UpdatePerUserSystemParameters']) 
 				 
- 
 				resolve(true)
 			}
 		})

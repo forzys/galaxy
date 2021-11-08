@@ -11,11 +11,24 @@ export default React.memo((props) => {
 	const files = e.dataTransfer.files;
 	console.log({files})
  
-	if(files[0]?.path) bridge
-	?.onSetWallpaper?.({ wallpaper: files[0]?.path })
-	?.then((result: any) => {
-		message.success('success'); 
-	}); 
+	if(files[0]?.path) { 
+		handle?.({
+			handle:'RegEdit.set',
+			name:'wallpaper', 
+			path:`"hkcu\\control panel\\desktop"`,
+			value:files[0]?.path,
+		}).then((res)=>{
+			console.log({ res })
+
+			message.success('success');
+		})
+	}
+	
+	// bridge
+	// ?.onSetWallpaper?.({ wallpaper: files[0]?.path })
+	// ?.then((result: any) => {
+	// 	message.success('success'); 
+	// }); 
   }
 
 	function onDragEnter(e: any) {

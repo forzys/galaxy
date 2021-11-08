@@ -10,11 +10,12 @@ const common = require('./common/commonMain')
 
 let win
 
+
 const onWindowsMain = ()=>{
     const webPreferences = {
         webSecurity: false,
         nodeIntegration: true,
-        preload: path.join(__dirname, 'preload.js'),
+        preload: path.join(__dirname, 'load.js'),
     }
     win = new BrowserWindow({
 		frame: true,
@@ -50,6 +51,26 @@ const onWindowsMain = ()=>{
 	win.on('closed',()=> win = null)
 }
  
+
+// 单例窗口 
+if (!app.requestSingleInstanceLock()) { app.quit() }
+
+
+
+
+
+
+app.on('second-instance', (event, command, working) => { 
+    if (win) {
+      if (win.isMinimized()) 
+      win.restore();
+      win.show()
+      win.focus() 
+    }
+})
+
+
+
 app.on('window-all-closed', () => {
     process.platform !== 'darwin' && app.quit()
 })
@@ -60,18 +81,18 @@ app.on('ready', () => {
         common?.Events?.ewindows().length === 0 && onWindowsMain()
     })
 })
- 
+
 ipcMain.handle('render-handle-ipc', (event, params) => { 
     return new Promise((resolve)=>{ 
-        if(params?.name){
+        if(params?.handle){
 			let Events = common
-			params.name.split('.').forEach(n=>{
+			params.handle.split('.').forEach(n=>{
 				if(Events[n]){
 					Events = Events[n]
 				}
 			}) 
             if(Events){
-				Events?.(params).then(result=>{ 
+				Events?.(params).then(result=> { 
 					resolve({ success: true, result })
 				})
             }else{
