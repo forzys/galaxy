@@ -2,9 +2,7 @@
  
 const { Callback } = require('./commonMain')
 const Dexie = require('dexie') 
-
  
-
 let common ={
     Events:{
 		test: (params)=>{
@@ -20,47 +18,41 @@ let common ={
 		}
     },
 	DataBase:{
-		open:(table)=>{
+		open:(params)=>{
 			console.log('open',{params})
 			return new Promise((resolve)=>{ 
-				// 打开已经存在的数据库
-				new Dexie('Galaxy').open().then((db)=> {
-					console.log({db})
-					// console.log ("Found database: " + db.name);
-					// console.log ("Database version: " + db.verno);
-					// db.tables.forEach(function (table) {
-					// 	console.log ("Found table: " + table.name);
-					// 	console.log ("Table Schema: " +
-					// 		JSON.stringify(table.schema, null, 4));
-					// }) 
-					resolve(db.table(table))
-					// const table = db.table(table)
-					// resolve(table)
-					// resolve({success: false, data:''})
-					// if(db.tables(name)){
-					// 	resolve(db.table(name))
-					// }
-					 
-				}).catch('NoSuchDatabaseError', function(e) {
-					// Database with that name did not exist
-					console.error ("Database not found");
-				}).catch(function (e) {
-					console.error ("Oh uh: " + e);
-				})
-			}) 
+				const db = new Dexie('Galaxy');
+				db.version(params?.version || 0.1).stores({
+					user:'++id, options',
+					pierced: '++id,path,size,last,name,status,remote',
+					...params.stores,
+				});
+				resolve(db.table(params?.table)) 	 
+			})
 		},
 		get:(params)=>{ 
-			return new Promise(()=>{
-				renderCommon.DataBase.open( params?.table || 'test').then((table)=>{
-					console.log(table)
-
-					table.get(params.remote).then(res=>{
+			return new Promise((resolve)=>{
+				common.DataBase.open(params).then((table)=>{
+					console.log(table) 
+					table?.get(params.id).then(res=>{
+						console.log(res)
 						resolve(res)
-					}) 
+					})
 				})
 			}).catch(e=>{ console.log(e) })
 		},
-		set:()=>{ },
+		set:(params)=>{ 
+			return new Promise((resolve)=>{
+				common.DataBase.open(params).then((table)=>{
+					// console.log(table) 
+					table?.bulkPut(params.list).then(res=>{
+						console.log(res)
+						resolve(res)
+					})
+
+				})
+			}).catch(e=>{ console.log(e) })
+		},
 		del:()=>{ },
 	}
 } 

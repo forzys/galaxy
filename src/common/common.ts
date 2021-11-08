@@ -1,14 +1,7 @@
 import React, { useEffect } from 'react';
-import { request, history } from 'umi';
-import Dexie from 'dexie';
+import { request, history } from 'umi'; 
 import Icons from './icon';
-
-const db = new Dexie('files_pierced_database');
-db.version(1).stores({
-	options: '++id, &uid, last, domain, port',
-	pierced: '++id, path, &remote, last, status, size',
-});
-
+  
 const md5 = require('./core/md5.ts');
 const filesave = require('./core/filesave');
 const isReact = Symbol.for('react.element');
@@ -207,12 +200,11 @@ export function useUpdate(props: any = {}) {
 			current,
 			md5,
 			uuid,
-			ref,
-			db,
+			ref, 
 			router: history,
 			filterSize,
-			electron: (window as any).electron,
-			bridge: (window as any).electronBridge,
+			electron: (window as any).electron, 
+			common: (window as any).commonRender,
 			handle: (window as any).electronHandle,
 		}),
 		[],

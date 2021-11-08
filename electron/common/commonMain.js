@@ -12,16 +12,51 @@ const common = {
                 ewindow: ewindows, 
             }
         },
-		test: (params)=>{
-			return new Promise((resolve)=>{ 
-				common.Callback({ name: 'DataBase.open', a:0 }).then(res=>{
-					console.log('---来自渲染进程的数据:',res)
-					resolve('GOOD',)
-				})
-				setTimeout(()=>{  
-					resolve('GOOD')
-				},3000)
-			}).catch(e=>{ console.log({ e })})
+		getFileInfo:(params)=>{ 
+			function readFile(path, filesList) {
+				let files = fs.readdirSync(path); //需要用到同步读取
+				files.forEach((file) => {
+					let states = fs.statSync(path + '/' + file);
+					if (states.isDirectory()) {
+						readFile(path + '/' + file, filesList);
+					} else {
+						filesList.push({ size: states.size });
+					}
+				});
+			}
+			return new Promise((resolve) => {
+				const { files } = params;
+				function geFileInfo(path) {
+					const result = {};
+					let pathInfo = fs.statSync(path); 
+					result.size = pathInfo.size;
+					result.directory = pathInfo.isDirectory() 
+					if (result.directory) {
+						let totalSize = 0;
+						let filesList = [];
+						readFile(path, filesList);
+						for (let i = 0; i < filesList.length; i++) {
+							let item = filesList[i];
+							totalSize += item.size;
+						} result.size = totalSize;
+					} return result;
+				}
+				const result = files.map((i) => {
+					const info = geFileInfo(i.path);
+					return { ...i, ...info };
+				});
+				resolve({ success: true, result }) 
+			});
+		},
+		setWallpaper:(params)=>{ 
+			return new Promise((resolve)=>{
+				let executPath = path.join(__dirname, '../static/wallpaper.exe');
+				let configPath = path.resolve(params?.path); 
+				let cmdpath = [executPath,configPath].join(' ')
+				common.RegEdit.cmd({ path:cmdpath, option:{ shell:'cmd.exe' }}).then((result)=>{
+					resolve(result)
+				}) 
+			})  
 		},
 		openServer:(params)=>{ 
 			return new Promise((resolve)=>{
@@ -32,17 +67,19 @@ const common = {
 					let incognito1 = '-config=' + configPath 
 					let incognito2 = '-subdomain=' + domain + ' ' + port
 					let cmdpath = [executPath,incognito1,incognito2].join(' ')
-					common.RegEdit.cmd({ path:cmdpath, option:{ shell:'cmd.exe' }})
-					resolve({ scuess: true })
+					common.RegEdit.cmd({ path:cmdpath, option:{ shell:'cmd.exe' }}).then((result)=>{
+						resolve(result)
+					})
+					
 				})
 			})
 		},
 		closeServer:()=>{ 
 			return new Promise((resolve)=>{
-				Server?.close(function () {
-					// console.log('Everything is cleanly shutdown.'); 
-					common.RegEdit.kill({ name:['dd.exe']  })
-					resolve({ success: true })
+				Server?.close(()=> { 
+					common.RegEdit.kill({ name:['dd.exe'] }).then(result=>{
+						resolve(result)
+					}) 
 				})
 			})
 		}
@@ -51,11 +88,11 @@ const common = {
 		get:(params) => new Promise((resolve)=>{
 			const { path, name, option } = params
 			child.exec(`REG QUERY ${path} /v ${name}`, { ...option },(error,stdout,stderr)=>{ 
-					resolve({ success: true, result:{ stdout, stderr } })
-				  if(error != null){ 
+				resolve({ success: true, result:{ stdout, stderr } })
+				if(error != null){ 
 					resolve({ success: false, result: error })
-				  }
-			  })
+				}
+			})
 		}),
 		set:(params) => new Promise((resolve)=> {
 			const { path, name, value, option } = params 
@@ -77,8 +114,7 @@ const common = {
 			})
 		}),
 		cmd:(params)=>new Promise((resolve)=>{
-			const { path, option } = params 
-			console.log('path:',path)
+			const { path, option } = params  
 			child.exec(path, {...option }, (error,stdout,stderr)=>{ 
 				resolve({ success: true, result:{ stdout, stderr } })
 				if(error != null){ 
@@ -95,7 +131,7 @@ const common = {
 			if(name.length){
 				killStr+=name?.map(i=> `/im ${i}`).join(' ') + ' /f'
 			}
-			child.exec(killStr,  { ...option }, (error,stdout,stderr)=>{ 
+			child.exec(killStr, { ...option }, (error,stdout,stderr)=>{ 
 				resolve({ success: true, result:{ stdout, stderr } })
 				if(error != null){ 
 					resolve({ success: false, result: error })

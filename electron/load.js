@@ -7,6 +7,8 @@ window.electronBridge = require('./event.js')
 const { ipcRenderer } = require('electron')
 const common = require('./common/commonRender')
  
+window.commonRender = common
+
 window.electronHandle = (params)=>{
     return new Promise((resolve)=>{
         resolve(ipcRenderer.invoke('render-handle-ipc', params))
@@ -24,7 +26,7 @@ ipcRenderer.on('main-handle-ipc', (params) => {
 			})
             if(Events){
                	Events?.(params).then(result=>{ 
-                    resolve({ success: true, result })
+                    resolve(result)
                 })
             }else{
                 resolve({ success: false, result:'not find name' })

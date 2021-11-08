@@ -12,14 +12,16 @@ export default React.memo((props) => {
 	console.log({files})
  
 	if(files[0]?.path) { 
-		handle?.({
-			handle:'RegEdit.set',
-			name:'wallpaper', 
-			path:`"hkcu\\control panel\\desktop"`,
-			value:files[0]?.path,
-		}).then((res)=>{
-			console.log({ res })
 
+		// http://localhost:8000
+
+		handle?.({
+			handle:'Events.setWallpaper',
+			name:'wallpaper', 
+			// path:`"hkcu\\control panel\\desktop"`,
+			path:files[0]?.path,
+		}).then((res)=>{
+			console.log({ res }) 
 			message.success('success');
 		})
 	}

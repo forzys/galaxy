@@ -4,35 +4,36 @@ import { Button, Popconfirm, Switch, Input, Empty, message, Spin, Table, Card} f
 import { useUpdate, Icons, pagination } from '@/common/common';
 
 export default React.memo((props) => {
-	const [ state, setState, {handle, uuid, current, electron, bridge, filterSize, md5, db }] = useUpdate({
+	const [ state, setState, {handle, uuid, current, electron, bridge, filterSize, md5, common }] = useUpdate({
 		pagination: { ...pagination, pageSize: 5 },
 		port: 12345,
 		domain: 'abcd',
 		option: {},
 	});
 
+	console.log({ common })
 	function onGetDomain() {
-		db?.options?.toArray().then((res: any) => {
-			if (res.length) {
-				const option = res?.[0];
-				setState({ option, domain: option.domain, port: option.port });
-			} else {
-				const uid = uuid();
-				const domain = uid.slice(0, 8);
-				const port = 12345;
-				const last = Date.now();
-				const option = { uid, domain, port, last };
-				setState({ option, domain, port }).then(() => {
-					db?.options?.put(option);
-				});
-			}
-		});
+		// db?.options?.toArray().then((res: any) => {
+		// 	if (res.length) {
+		// 		const option = res?.[0];
+		// 		setState({ option, domain: option.domain, port: option.port });
+		// 	} else {
+		// 		const uid = uuid();
+		// 		const domain = uid.slice(0, 8);
+		// 		const port = 12345;
+		// 		const last = Date.now();
+		// 		const option = { uid, domain, port, last };
+		// 		setState({ option, domain, port }).then(() => {
+		// 			db?.options?.put(option);
+		// 		});
+		// 	}
+		// });
 
-		db?.pierced?.toArray().then((res: any) => {
-			if (res.length) { 
-				setState({ fileList: [...res] });
-			}
-		})
+		// db?.pierced?.toArray().then((res: any) => {
+		// 	if (res.length) { 
+		// 		setState({ fileList: [...res] });
+		// 	}
+		// })
 	}
 
 	React.useEffect(() => {
@@ -43,35 +44,40 @@ export default React.memo((props) => {
 		e.preventDefault();
 		e.stopPropagation();
 		const files = e.dataTransfer.files;
+
 		setState({ loading: true }).then(() => {
-			const fileList: any = state.fileList || [];
-			files.forEach((file: any, i: number) => {
-				const index = fileList.findIndex((f: any) => f.path === file.path);
-				const info: any = {
-					path: file.path,
-					size: file.size,
-					last: file.lastModified,
-					status: true,
-					name: file.path.split('\\').pop(),
-					remote: md5(file.path).substr(14, 6),
-				};
+			console.log({ files })
+			const fileList:any = [];
 
-				if (index !== -1) {
-					info.index = index;
-					fileList.splice(index, 1, info);
-				} else {
-					info.index = fileList.length;
-					fileList.push(info);
+			files.forEach((file: any) => fileList.push({
+				status: true,
+				path: file.path,
+				size: file.size,
+				id: md5(file.path).substr(8,24), 
+				last: file.lastModified, 
+				name: file.path.split('\\').pop(), 
+			}));
+
+
+			handle({handle:'Events.getFileInfo', files: fileList }).then((res:any)=>{
+				console.log(res)
+				if(res.success){
+					console.log(res)
+
+					common.DataBase.set({ table:'pierced', list: res?.result }).then(ress=>{
+						console.log({ress})
+					})
+					 
 				}
-			});
+			})
 
-			bridge
-				?.onGetFilesInfo?.({ files: fileList })
-				?.then((result: any) => {
-					message.success('success');
-					db?.pierced?.bulkPut(result);
-					setState({ loading: false, fileList: result });
-				});
+			// bridge
+			// 	?.onGetFilesInfo?.({ files: fileList })
+			// 	?.then((result: any) => {
+			// 		message.success('success');
+			// 		db?.pierced?.bulkPut(result);
+			// 		setState({ loading: false, fileList: result });
+			// 	});
 		});
 
 		state.timer = setTimeout(() => {
@@ -83,19 +89,14 @@ export default React.memo((props) => {
 	function onDragEnter(e: any) {
 		e?.currentTarget?.classList?.add('mask');
 		if (current.dragBox) {
-			current.dragBox?.classList?.remove('hidden');
 			current.dragBox?.classList?.add('show');
-		}
+			current.dragBox?.classList?.remove('hidden'); 
+		} 
 	}
-
-	function onDragLeave(e: any) {
-		e.preventDefault();
-	}
+ 
 	function onDragOver(e: any) {
 		e.preventDefault();
-		if (state.timer) {
-			clearTimeout(state.timer);
-		}
+		if (state.timer) clearTimeout(state.timer); 
 		let target = e.currentTarget;
 		state.timer = setTimeout(() => {
 			target?.classList?.remove('mask');
@@ -103,6 +104,7 @@ export default React.memo((props) => {
 			current.dragBox.classList.add('hidden');
 		}, 0.3 * 1000);
 	}
+	
 	function onServerChange(servered: any) {
  
 		setState({ servered }).then(()=>{
@@ -134,8 +136,7 @@ export default React.memo((props) => {
 		// });
 	}
 
-	const columns = React.useMemo(
-		() => [
+	const columns =   [
 			{
 				title: '名称',
 				dataIndex: 'name',
@@ -222,15 +223,13 @@ export default React.memo((props) => {
 					);
 				},
 			},
-		],
-		[],
-	) 
+		]
 
 	return (
 		<div
 			onDragOver={onDragOver}
 			onDragEnter={onDragEnter}
-			onDragLeave={onDragLeave}
+			onDragLeave={e=>e.preventDefault()}
 			onDrop={(e: any) => {
 				e.preventDefault();
 				e?.currentTarget?.classList?.remove('mask');

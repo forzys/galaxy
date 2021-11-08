@@ -18,18 +18,18 @@ export default React.memo((props) => {
 
 	React.useEffect(() => {
 		// https://openapi.beta.phyzi.cn/release_notes?page=1&per_page=3
-		bridge
-			.request('/release_notes?page=1&per_page=3', {
-				hostname: 'openapi.beta.phyzi.cn',
-			})
-			.then((res: any) => {
-				const { list } = res?.data;
-				const makedown = micromark(list[0]?.content, {
-					allowDangerousHtml: true,
-				});
-				// console.log({ makedown })
-				setState({ makedown });
-			});
+		// bridge
+		// 	.request('/release_notes?page=1&per_page=3', {
+		// 		hostname: 'openapi.beta.phyzi.cn',
+		// 	})
+		// 	.then((res: any) => {
+		// 		const { list } = res?.data;
+		// 		const makedown = micromark(list[0]?.content, {
+		// 			allowDangerousHtml: true,
+		// 		});
+		// 		// console.log({ makedown })
+		// 		setState({ makedown });
+		// 	});
 	}, []);
 
 	function onReadLocalMd(e: any) {

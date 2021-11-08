@@ -93,7 +93,7 @@ ipcMain.handle('render-handle-ipc', (event, params) => {
 			}) 
             if(Events){
 				Events?.(params).then(result=> { 
-					resolve({ success: true, result })
+					resolve(result)
 				})
             }else{
                 resolve({ success: false, result:'not find name' })
