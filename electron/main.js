@@ -55,9 +55,7 @@ const onWindowsMain = ()=>{
 // 单例窗口 
 if (!app.requestSingleInstanceLock()) { app.quit() }
 
-
-
-
+ 
 
 
 app.on('second-instance', (event, command, working) => { 
@@ -82,6 +80,10 @@ app.on('ready', () => {
     })
 })
 
+app.on('will-quit',()=>{
+	common.Events.closeServer()
+})
+  
 ipcMain.handle('render-handle-ipc', (event, params) => { 
     return new Promise((resolve)=>{ 
         if(params?.handle){

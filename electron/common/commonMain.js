@@ -2,6 +2,7 @@
 const child = require('child_process') 
 const querystring = require('querystring') 
 const urls = require('url')
+const iconv = require('iconv-lite');
 const zlib = require('zlib')
 const { net, BrowserWindow,MessageChannelMain } = require('electron')
 
@@ -62,26 +63,40 @@ const common = {
 		},
 		openServer:(params)=>{ 
 			return new Promise((resolve)=>{
-				let { domain='zys123', port = 12345 } = params;
-				Server.listen(port, ()=> { 
-					let executPath = path.join(__dirname, '../static/dd.exe');
-					let configPath = path.join(__dirname, '../static/dd.cfg');
-					let incognito1 = '-config=' + configPath 
-					let incognito2 = '-subdomain=' + domain + ' ' + port;
-					let cmdpath = [executPath,incognito1,incognito2].join(' ')
-					common.RegEdit.cmd({ path:cmdpath, option:{ shell:'cmd.exe' }}).then((result)=>{
-						resolve(result)
+				let { domain='abc123', port = 12345 } = params; 
+				common.Events.closeServer().then(()=>{
+					Server.listen(port, ()=> {
+						let executPath = path.join(__dirname, '../static/dd.exe');
+						let configPath = path.join(__dirname, '../static/dd.cfg');
+						let incognito1 = '-config=' + configPath 
+						let incognito2 = '-subdomain=' + domain + ' ' + port;
+						let cmdpath = [executPath,incognito1,incognito2].join(' ')
+						common.RegEdit.cmd({ path:cmdpath, option:{ shell:'cmd.exe' }}).then((result)=>{
+							resolve(result)
+						})
 					})
-				})
+				}) 
 			})
 		},
 		closeServer:(params)=>{ 
 			return new Promise((resolve)=>{
 				Server?.close(()=> { 
-					common.RegEdit.kill({ name:['dd.exe'] }).then(result=>{
+					common.RegEdit.kill({ name:['dd.exe'] }).then(result=>{ 
 						resolve(result)
 					}) 
 				})
+			})
+		},
+		getServer:()=>{
+			return new Promise((resolve)=>{
+				if(Server.listening){
+					common.RegEdit.cmd({ path:'tasklist /fi "imagename eq dd.exe"' }).then(result=>{
+						resolve(result)
+					}) 
+				}else{
+					resolve({ success: false, result:'Server is closed'})
+				}
+				
 			})
 		},
     },
@@ -118,13 +133,16 @@ const common = {
 		}),
 		cmd:(params)=>new Promise((resolve)=>{
 			let { path, option } = params  
-			child.exec(path, {...option }, (error,stdout,stderr)=> {
+			child.exec(path, { encoding: 'buffer', ...option }, (error,stdout,stderr)=> {
 				if(error != null){ 
 					resolve({ success: false, result: error })
 				}else{
-					resolve({ success: true, result:{ stdout, stderr } })
+					resolve({ success: true, result:{stdout:iconv.decode(stdout,'cp936'), stderr:iconv.decode(stderr,'cp936')}})
 				}
 			})
+			setTimeout(() => {
+				resolve({ success: true, result:null })
+			}, 1500);
 		}),
 		kill:(params)=>new Promise((resolve)=>{
 			let { pid = [], name =[] , option} = params

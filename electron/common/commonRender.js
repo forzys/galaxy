@@ -66,16 +66,14 @@ let common ={
 		select:(params)=>{
 			return new Promise((resolve)=>{
 				const { page = 0, pageSize= 10 } = params
-				common.DataBase.open(params).then((table)=>{
-					let select = table?.where(params?.select)
-					let total = select.count()
-					select.offset(page).limit(pageSize).toArray().then(res=>{
+				common.DataBase.open(params).then(async (table)=>{
+					let select = params?.select?table?.where(params?.select):table;
+					let total = await select.count() 
+					select.offset(page).limit(pageSize).toArray().then(res=>{ 
 						resolve({
 							success:true,
-							data:{
-								data: res,
-								info:{ page, total, pageSize }, 
-							}, 
+							data: res,
+							info:{ page, total, pageSize },
 						})
 					})
 				})
