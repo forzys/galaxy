@@ -18,8 +18,7 @@ let common ={
 		}
     },
 	DataBase:{
-		open:(params)=>{
-			console.log('open',{params})
+		open:(params)=>{ 
 			return new Promise((resolve)=>{ 
 				const db = new Dexie('Galaxy');
 				db.version(params?.version || 0.1).stores({
@@ -30,28 +29,79 @@ let common ={
 				resolve(db.table(params?.table)) 	 
 			})
 		},
+		upgrade:(params)=>{
+			return new Promise((resolve)=>{ 
+				const db = new Dexie('Galaxy');
+				db.version(version).stores({
+					user:'++id, options',
+					pierced: '++id,path,size,last,name,status,remote',
+					...params.stores,
+				}).upgrade(async tables=>{
+					const result = await resolve(tables)
+					return  result
+				})
+			}).catch(e=> resolve({ success:false, message:e }) )
+		},
 		get:(params)=>{ 
 			return new Promise((resolve)=>{
 				common.DataBase.open(params).then((table)=>{
-					console.log(table) 
-					table?.get(params.id).then(res=>{
-						console.log(res)
-						resolve(res)
+					if(params?.get){
+						table?.get(params?.get).then(res=>{
+							resolve({
+								success: true,
+								data: res,
+							})
+						})
+					}else{
+						table?.toArray().then(res=>{
+							resolve({
+								success: true,
+								data: res,
+							})
+						}) 
+					}
+				})
+			}).catch(e=> resolve({ success:false, message:e }) )
+		},
+		select:(params)=>{
+			return new Promise((resolve)=>{
+				const { page = 0, pageSize= 10 } = params
+				common.DataBase.open(params).then((table)=>{
+					let select = table?.where(params?.select)
+					let total = select.count()
+					select.offset(page).limit(pageSize).toArray().then(res=>{
+						resolve({
+							success:true,
+							data:{
+								data: res,
+								info:{ page, total, pageSize }, 
+							}, 
+						})
 					})
 				})
-			}).catch(e=>{ console.log(e) })
+			}).catch(e=> resolve({ success:false, message:e }) )
 		},
 		set:(params)=>{ 
 			return new Promise((resolve)=>{
-				common.DataBase.open(params).then((table)=>{
-					// console.log(table) 
-					table?.bulkPut(params.list).then(res=>{
-						console.log(res)
-						resolve(res)
-					})
-
+				common.DataBase.open(params).then((table)=>{ 
+					if(Array.isArray(params.set)){
+						table?.bulkPut(params.set).then(res=>{ 
+							resolve({
+								success:true,
+								data: res,
+							}) 
+						})
+					}else{
+						console.log({ p: table?.put })
+						table?.put(params.set).then(res=>{
+							resolve({
+								success:true,
+								data: res,
+							})
+						})
+					} 
 				})
-			}).catch(e=>{ console.log(e) })
+			}).catch(e=> resolve({ success:false, message:e }) )
 		},
 		del:()=>{ },
 	}

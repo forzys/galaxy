@@ -3,39 +3,13 @@ import { request, history } from 'umi';
 import Icons from './icon';
   
 const md5 = require('./core/md5.ts');
-const filesave = require('./core/filesave');
-const isReact = Symbol.for('react.element');
+const filesave = require('./core/filesave'); 
+const parserRss = require('./core/rss-parser')
 
 export { Icons };
-export function isElectron() {
-	if (
-		typeof window !== 'undefined' &&
-		typeof window.process === 'object' &&
-		(window.process as any).type === 'renderer'
-	) {
-		return true;
-	}
+ 
 
-	// Main process
-	if (
-		typeof process !== 'undefined' &&
-		typeof process.versions === 'object' &&
-		!!process.versions.electron
-	) {
-		return true;
-	}
 
-	// Detect the user agent when the `nodeIntegration` option is set to false
-	if (
-		typeof navigator === 'object' &&
-		typeof navigator.userAgent === 'string' &&
-		navigator.userAgent.indexOf('Electron') >= 0
-	) {
-		return true;
-	}
-
-	return false;
-}
 
 export function filterSize(size: number) {
 	if (!size) return '';
@@ -73,7 +47,6 @@ export function onGetHtmlString(props: any): any {
 		if (typeof props?.props?.children === 'string') {
 			return props?.props?.children?.trim?.();
 		}
-
 		if (Array.isArray(props?.props?.children)) {
 			let _temp = '';
 			for (let i = 0; i < props?.props?.children?.length; i += 1) {
@@ -82,7 +55,6 @@ export function onGetHtmlString(props: any): any {
 			return _temp;
 		}
 	}
-
 	return '';
 }
 
@@ -200,7 +172,7 @@ export function useUpdate(props: any = {}) {
 			current,
 			md5,
 			uuid,
-			ref, 
+			ref, parserRss,
 			router: history,
 			filterSize,
 			electron: (window as any).electron, 

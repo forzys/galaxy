@@ -86,6 +86,7 @@ ipcMain.handle('render-handle-ipc', (event, params) => {
     return new Promise((resolve)=>{ 
         if(params?.handle){
 			let Events = common
+            params.handle = params.handle || '' 
 			params.handle.split('.').forEach(n=>{
 				if(Events[n]){
 					Events = Events[n]

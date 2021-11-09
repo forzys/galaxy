@@ -1,36 +1,38 @@
 
 const child = require('child_process') 
 const querystring = require('querystring') 
+const urls = require('url')
+const zlib = require('zlib')
 const { net, BrowserWindow,MessageChannelMain } = require('electron')
 
 const common = {
     Events:{
-        ewindows:()=>{
+        ewindows:(params)=> {
             const ewindows = BrowserWindow?.getAllWindows?.();
             return {
-                length:ewindows?.length,
                 ewindow: ewindows, 
+				length:ewindows?.length,
             }
         },
 		getFileInfo:(params)=>{ 
-			function readFile(path, filesList) {
-				let files = fs.readdirSync(path); //需要用到同步读取
-				files.forEach((file) => {
-					let states = fs.statSync(path + '/' + file);
-					if (states.isDirectory()) {
-						readFile(path + '/' + file, filesList);
-					} else {
-						filesList.push({ size: states.size });
-					}
-				});
-			}
 			return new Promise((resolve) => {
 				const { files } = params;
+				function readFile(path, filesList) {
+					let files = fs.readdirSync(path); //需要用到同步读取
+					files.forEach((file) => {
+						let states = fs.statSync(path + '/' + file);
+						if (states.isDirectory()) {
+							readFile(path + '/' + file, filesList);
+						} else {
+							filesList.push({ size: states.size });
+						}
+					})
+				}
 				function geFileInfo(path) {
 					const result = {};
-					let pathInfo = fs.statSync(path); 
+					let pathInfo = fs.statSync(path);
 					result.size = pathInfo.size;
-					result.directory = pathInfo.isDirectory() 
+					result.directory = pathInfo.isDirectory();
 					if (result.directory) {
 						let totalSize = 0;
 						let filesList = [];
@@ -50,31 +52,30 @@ const common = {
 		},
 		setWallpaper:(params)=>{ 
 			return new Promise((resolve)=>{
+				let configPath = path.resolve(params?.path);
 				let executPath = path.join(__dirname, '../static/wallpaper.exe');
-				let configPath = path.resolve(params?.path); 
-				let cmdpath = [executPath,configPath].join(' ')
-				common.RegEdit.cmd({ path:cmdpath, option:{ shell:'cmd.exe' }}).then((result)=>{
+				let cmdpath = [executPath,configPath].join(' ');
+				common.RegEdit.cmd({ path: cmdpath, option:{ shell:'cmd.exe' }}).then((result)=>{
 					resolve(result)
-				}) 
-			})  
+				})
+			})
 		},
 		openServer:(params)=>{ 
 			return new Promise((resolve)=>{
-				let { domain='zys123', port = 12345 } = params
-				Server.listen(port,()=>{ 
+				let { domain='zys123', port = 12345 } = params;
+				Server.listen(port, ()=> { 
 					let executPath = path.join(__dirname, '../static/dd.exe');
 					let configPath = path.join(__dirname, '../static/dd.cfg');
 					let incognito1 = '-config=' + configPath 
-					let incognito2 = '-subdomain=' + domain + ' ' + port
+					let incognito2 = '-subdomain=' + domain + ' ' + port;
 					let cmdpath = [executPath,incognito1,incognito2].join(' ')
 					common.RegEdit.cmd({ path:cmdpath, option:{ shell:'cmd.exe' }}).then((result)=>{
 						resolve(result)
 					})
-					
 				})
 			})
 		},
-		closeServer:()=>{ 
+		closeServer:(params)=>{ 
 			return new Promise((resolve)=>{
 				Server?.close(()=> { 
 					common.RegEdit.kill({ name:['dd.exe'] }).then(result=>{
@@ -82,11 +83,11 @@ const common = {
 					}) 
 				})
 			})
-		}
+		},
     },
 	RegEdit: {
-		get:(params) => new Promise((resolve)=>{
-			const { path, name, option } = params
+		get:(params)=>new Promise((resolve)=>{
+			let { path, name, option } = params
 			child.exec(`REG QUERY ${path} /v ${name}`, { ...option },(error,stdout,stderr)=>{ 
 				resolve({ success: true, result:{ stdout, stderr } })
 				if(error != null){ 
@@ -94,47 +95,51 @@ const common = {
 				}
 			})
 		}),
-		set:(params) => new Promise((resolve)=> {
-			const { path, name, value, option } = params 
+		set:(params)=>new Promise((resolve)=> {
+			let { path, name, value, option } = params 
 			let regs = `reg add ${path} /v ${name} /d ${value} /f && RunDll32.exe USER32.DLL,UpdatePerUserSystemParameters`
-			child.exec(regs,{...option}, (error,stdout,stderr)=>{ 
-				resolve({ success: true, result:{ stdout, stderr } })
+			child.exec(regs,{...option}, (error,stdout,stderr)=> {
 				if(error != null){ 
 					resolve({ success: false, result: error })
+				}else{
+					resolve({ success: true, result:{ stdout, stderr }})
 				}
-			}) 
+			})
 		}),
 		del:(params)=>new Promise((resolve)=>{
-			const { path, value, option } = params 
-			child.exec(`reg delete ${path} /v ${value} /f`, {...option},(error,stdout,stderr)=>{ 
-				resolve({ success: true, result:{ stdout, stderr } })
+			let { path, value, option } = params 
+			child.exec(`reg delete ${path} /v ${value} /f`, { ...option }, (error,stdout,stderr)=>{ 
 				if(error != null){ 
 					resolve({ success: false, result: error })
+				}else{
+					resolve({ success: true, result:{ stdout, stderr }})
 				}
 			})
 		}),
 		cmd:(params)=>new Promise((resolve)=>{
-			const { path, option } = params  
-			child.exec(path, {...option }, (error,stdout,stderr)=>{ 
-				resolve({ success: true, result:{ stdout, stderr } })
+			let { path, option } = params  
+			child.exec(path, {...option }, (error,stdout,stderr)=> {
 				if(error != null){ 
 					resolve({ success: false, result: error })
+				}else{
+					resolve({ success: true, result:{ stdout, stderr } })
 				}
 			})
 		}),
 		kill:(params)=>new Promise((resolve)=>{
-			const { pid = [], name =[] , option} = params
+			let { pid = [], name =[] , option} = params
 			let killStr = 'taskkill '
 			if(pid.length){
-				killStr+=pid?.map(i=> `/pid ${i}`).join(' ') + ' /f'
+				killStr+= pid?.map(i=> `/pid ${i}`).join(' ') + ' /f'
 			} 
 			if(name.length){
 				killStr+=name?.map(i=> `/im ${i}`).join(' ') + ' /f'
 			}
-			child.exec(killStr, { ...option }, (error,stdout,stderr)=>{ 
-				resolve({ success: true, result:{ stdout, stderr } })
+			child.exec(killStr, { ...option }, (error,stdout,stderr)=>{
 				if(error != null){ 
 					resolve({ success: false, result: error })
+				}else{
+					resolve({ success: true, result:{ stdout, stderr } })
 				}
 			})
 		}),
@@ -166,14 +171,11 @@ const fs = require('fs');
 var Server = http.createServer((req,res)=>{
 	const url = decodeURIComponent(req.url);
 	const remote = url.split('/').pop()
-
 	console.log(remote)
-
-	if(remote === ''){ 
+	if(remote === ''){
 		res.writeHead(301, {'Location': `/index.html`});
 		res.end();
 	}
-
 	if (remote === 'index.html') {
 		common.Callback({ name:'DataBase.get', data:{
 			table:'pierced',
@@ -198,7 +200,7 @@ var Server = http.createServer((req,res)=>{
 		table:'pierced',
 		remote:remote,
 	}}).then((result)=>{
-		console.log({ result })
+		// console.log({ result })
 		if (result?.success && result?.data) {
 			const file = result.data 
 			if (file?.directory) {
@@ -225,28 +227,32 @@ var Server = http.createServer((req,res)=>{
 						res.writeHead(404);
 						res.end('404 Not Found');
 					}
-				});
+				})
 			}
 		}else{
 			res.writeHead(404);
-			res.end('404 Not Found');
+			res.end('404 Not Found')
 		}
 	})
 })
  
-var Requests = (params) => {
-	const { url, data, port = 80 } = params;
-	const { headers={}, hostname='127.0.0.1' } = params;
-	const { method ='get', protocol = 'http:' } = params;
-
-	return new Promise((resolve) => {
+function Requests(params){ 
+	return new Promise((resolve) => { 
+		let { url, data, port = 80, type='json' } = params;
+		let { headers={}, hostname='127.0.0.1' } = params;
+		let { method ='get', protocol = 'http:' } = params;
+		let parseUrl = urls.parse(url) 
+		if(parseUrl.hostname || parseUrl.protocol){ 
+			port = parseUrl.port || port
+			hostname = parseUrl.hostname || hostname
+			url = parseUrl.path || url
+		}
 		const result = {
 			data:undefined,
 			message:undefined,
 			code: 200,
 			success: true
 		}
-
 		const request = net.request({
 			path: url,
 			port: port,
@@ -255,32 +261,67 @@ var Requests = (params) => {
 			headers: headers,
 			hostname: hostname.replace(/^(http:\/\/|https:\/\/)/, ''),
 		})
-
 		if (String(method).toLowerCase() === 'post') {
 			const postData = querystring.stringify(data);
 			request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
 			request.setHeader('Content-Length', postData.length)
 			request.write(postData)
 		}
-
 		request.on('error', (e) => {
 			result.success = false;
 			result.message = e.message;
 			resolve(result)
 		})
-
 		request.on('response', (response) => {
 			result.code = response.statusCode;
-			response.on('data', (data) => {
-				try {
-					result.data = JSON.parse(data);
-				} catch (e) {
+			result._data = []
+			response.on('data', (data) => { 
+				result._data.push(data) 
+			})
+			response.on('end', () => {
+				let buffer = Buffer.concat(result._data)
+				let encoding = response.headers["content-encoding"]
+				let zlibs = {
+					gzip:()=>{
+						zlib.gunzip(buffer, (err, decoded) => { 
+							if(!err){
+								result.data = decoded.toString()
+							}else{ 
+								result.success = false;
+								result.message = err; 
+							} 
+						})
+					},
+					deflate:()=>{
+						zlib.inflate(buffer, (err, decoded) =>{ 
+							if(!err){
+								result.data = decoded.toString()
+							}else{ 
+								result.success = false;
+								result.message = err; 
+							}
+						})
+					}
+				} 
+
+				if(zlibs[encoding]){
+					zlibs?.[encoding]?.()
+				}else{
+					result.data = buffer.toString()
+				}
+
+				try{
+					delete result._data
+					if(type === 'json'){
+						result.data = JSON.parse(result.data)
+					} 
+				}catch(e){
 					result.success = false;
 					result.message = 'json parse error';
-				}
+				}  
+				resolve(result)
 			});
-			response.on('end', () => resolve(result));
-		}) 
+		})
 		request.end()
-	});
+	})
 }

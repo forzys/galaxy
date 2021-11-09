@@ -1,3 +1,6 @@
+
+const url = require('url')
+
 const template = (list) => { 
 	return `<!DOCTYPE html>
 		<html lang="en">
@@ -55,3 +58,5 @@ const template = (list) => {
 		</body>
 	</html>`;
 }
+
+

@@ -1,9 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useEffect } from 'react';
 import ProLayout, { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Menu } from 'antd';
 import { Link } from 'umi';
 import Dexie from 'dexie';
-import { useUpdate } from '@/common/common';
+import { useUpdate } from '@/common/common'; 
 
 const waitTime = (time: number = 100) => {
 	return new Promise((resolve) => {
@@ -14,7 +14,31 @@ const waitTime = (time: number = 100) => {
 };
 
 export default React.memo((props: any) => {
-	const [state, setState, { electron }] = useUpdate({});
+	const [state, setState, { uuid, common }] = useUpdate({});
+
+
+	useEffect(()=>{ 
+		common.DataBase.get({ table:'user' }).then((res:any)=>{ 
+			if(res.success){
+				if(!res.data.length){
+					const uid = uuid()
+					const user = {
+						id: uid,
+						options:{
+							remote:uid.slice(0,6),
+							port: 12345,
+						}
+					} 
+					common.DataBase.set({ table:'user', set: user }).then((ress:any)=>{
+						// console.log({ ress })
+					})
+				}
+			}
+		})
+	},[])
+
+
+	
 
 	// const db = new Dexie('files_pierced_database');
 	// db.version(1).stores({
@@ -75,11 +99,16 @@ export default React.memo((props: any) => {
 						</Link>
 					</Menu.Item>
 					<Menu.Item key="4" icon={<div />}>
+						<Link to="/feed" title="Rss"> 
+							RSS 订阅 
+						</Link>
+					</Menu.Item>
+					<Menu.Item key="5" icon={<div />}>
 						<Link to="/m3u8" title="映射"> 
 							M3U8 下载 
 						</Link>
 					</Menu.Item>
-					<Menu.Item key="5" icon={<div />}>
+					<Menu.Item key="6" icon={<div />}>
 						<Link to="/wallpaper" title="壁纸"> 
 							壁纸 
 						</Link>

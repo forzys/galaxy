@@ -10,9 +10,18 @@ export default React.memo((props) => {
 		domain: 'abcd',
 		option: {},
 	});
+ 
+	function onGetDomain() { 
+		common.DataBase.get({ table:'user' }).then((res:any)=>{ 
+			if(res.success){
+				if(res?.data?.length){
+					const user = res?.data?.[0] 
+					const options = user?.options 
+					setState({ domain: options.remote, port:options.port, })
+				}
+			}
+		})
 
-	console.log({ common })
-	function onGetDomain() {
 		// db?.options?.toArray().then((res: any) => {
 		// 	if (res.length) {
 		// 		const option = res?.[0];

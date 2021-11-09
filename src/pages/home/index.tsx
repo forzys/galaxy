@@ -6,7 +6,7 @@ import { useUpdate } from '@/common/common';
 export default React.memo((props) => {
 	const [state, setState, { router, electron, bridge }] = useUpdate({});
 
-	console.log({ electron, bridge });
+	// console.log({ electron, bridge });
 
 	function onNewWindow() {
 		bridge
