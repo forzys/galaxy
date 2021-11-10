@@ -18,7 +18,7 @@ export default React.memo((props) => {
 					setState({ servered: true })
 				}
 			}
-		}) 
+		})
 		common.DataBase.get({ table:'user' }).then((res:any)=>{ 
 			if(res.success){
 				if(res?.data?.length){
@@ -29,6 +29,7 @@ export default React.memo((props) => {
 			}
 		}) 
 	}
+
 	function onSetOptions(op:any){
 		const user = state.user
 		user.options = {
@@ -50,15 +51,14 @@ export default React.memo((props) => {
 					setState({ fileList: res?.data })
 				}
 			}
-		}) 
-
+		})
 	}
 
 	React.useEffect(() => {
 		onGetOptions();
 		onGetPierced();
-		
 	}, []);
+
 
 	function onFilesDrag(e: any) {
 		e.preventDefault();
@@ -78,20 +78,18 @@ export default React.memo((props) => {
 					remote:md5Id.substr(8,8),
 					name: file.path.split('\\').pop(), 
 				})
-			});
- 
-			handle({handle:'Events.getFileInfo', files: fileList }).then((res:any)=>{ 
+			})
+
+			handle({ handle:'Events.getFileInfo', files: fileList }).then((res:any)=>{ 
 				if(res.success){ 
 					common.DataBase.set({ table:'pierced', set: res?.result }).then((resu:any)=>{
 						if(resu.success){
 							onGetPierced()
 						}
 					})
-					 
 				}
 			})
- 
-		});
+		})
 
 		state.timer = setTimeout(() => {
 			current.dragBox.classList.remove('show');
@@ -104,11 +102,11 @@ export default React.memo((props) => {
 		if (current.dragBox) {
 			current.dragBox?.classList?.add('show');
 			current.dragBox?.classList?.remove('hidden'); 
-		} 
+		}
 	}
  
 	function onDragOver(e: any) {
-		e.preventDefault();
+		e.preventDefault(); 
 		if (state.timer) clearTimeout(state.timer); 
 		let target = e.currentTarget;
 		state.timer = setTimeout(() => {
@@ -168,7 +166,7 @@ export default React.memo((props) => {
 			{
 				title: '状态',
 				dataIndex: 'status',
-				render: (status) => (status ? '启用中' : '关闭中'),
+				render: (stu:any) => (stu ? '启用中' : '关闭中'),
 			},
 			{
 				title: '操作',
@@ -193,10 +191,9 @@ export default React.memo((props) => {
 								icon={
 									<div>
 										<b style={{ color: '#ff7875' }}>
-											{' '}
-											注意{' '}
-										</b>{' '}
-										删除后远程将无法访问
+											注意
+										</b>
+										<i>删除后远程将无法访问</i>
 									</div>
 								}
 								cancelText="取消"
@@ -205,13 +202,11 @@ export default React.memo((props) => {
 								onConfirm={() => {
 									const files = state.fileList;
 									files.splice(record.index, 1);
-									state.fileList = files.map(
-										(f: any, i: number) => {
+									state.fileList = files.map((f: any, i: number) => {
 											f.index = i;
 											return f;
 										},
-									);
-
+									)
 									setState({ fileList: [...state.fileList] });
 								}}
 							>

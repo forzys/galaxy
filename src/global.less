@@ -110,3 +110,63 @@ aside.ant-layout-sider.ant-pro-sider-layout-side {
 		padding-left: 0px;
 	}
 }
+
+.todo_custom {
+	box-shadow: 6px 6px 20px rgba(0, 0, 0, 0.2);
+	border-radius: 6px;
+	// border: 2px dashed #fff;
+	padding: 12px;
+	background: linear-gradient(to bottom, #d6956b, #b25d4e);
+	background-origin: border-box;
+
+	.ant-card-head {
+		padding: 0;
+		border-bottom: 0;
+		.ant-card-head-wrapper {
+			.ant-card-head-title {
+				padding: 0;
+				.progress {
+					padding-left: 12px;
+					padding-bottom: 6px;
+					display: flex;
+					align-items: flex-end;
+					color: #f0e6d0;
+					font-size: 13px;
+					font-weight: 500;
+				}
+				.task {
+					width: 50px;
+					height: 50px;
+					background: url('./static/task.png') no-repeat;
+					background-size: cover;
+				}
+			}
+
+			.ant-card-extra {
+				margin-top: -32px;
+				margin-right: -12px;
+				padding: 0;
+				display: flex;
+				align-items: flex-start;
+				background: transparent;
+				.close {
+					background: transparent;
+					.ant-btn {
+						background: transparent;
+						border: 0;
+
+						._svg {
+							clip-path: #fff;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.ant-card-body {
+		background: #fff;
+		min-height: 150px;
+		border-radius: 7px;
+	}
+}

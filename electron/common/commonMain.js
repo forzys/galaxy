@@ -4,11 +4,12 @@ const querystring = require('querystring')
 const urls = require('url')
 const iconv = require('iconv-lite');
 const zlib = require('zlib')
+const template = require('./template')
 const { net, BrowserWindow,MessageChannelMain } = require('electron')
 
 const common = {
     Events:{
-        ewindows:(params)=> {
+        ewindows:()=> {
             const ewindows = BrowserWindow?.getAllWindows?.();
             return {
                 ewindow: ewindows, 
@@ -30,7 +31,7 @@ const common = {
 					})
 				}
 				function geFileInfo(path) {
-					const result = {};
+					let result = {}
 					let pathInfo = fs.statSync(path);
 					result.size = pathInfo.size;
 					result.directory = pathInfo.isDirectory();
@@ -92,11 +93,10 @@ const common = {
 				if(Server.listening){
 					common.RegEdit.cmd({ path:'tasklist /fi "imagename eq dd.exe"' }).then(result=>{
 						resolve(result)
-					}) 
+					})
 				}else{
 					resolve({ success: false, result:'Server is closed'})
 				}
-				
 			})
 		},
     },
@@ -189,69 +189,64 @@ const fs = require('fs');
 var Server = http.createServer((req,res)=>{
 	const url = decodeURIComponent(req.url);
 	const remote = url.split('/').pop()
-	console.log(remote)
 	if(remote === ''){
 		res.writeHead(301, {'Location': `/index.html`});
 		res.end();
 	}
-	if (remote === 'index.html') {
-		common.Callback({ name:'DataBase.get', data:{
-			table:'pierced',
-			remote:null,
-		}}).then((result)=>{
+
+	if (remote === 'index.html') {  
+		common.Callback({ handle:'DataBase.select', table:'pierced', page:1, pageSize: 100 }).then((result)=>{
 			if (result?.success) {
-				res.writeHead(200, { 'Content-Type': 'text/html' })
-				// res.end(template(result.data));
-				res.end('Success !');
+				res.writeHead(200, {'Content-Type': 'text/html' }) 
+				res.end(template?.piercedIndex(result.data)); 
 			} else {
 				res.writeHead(404);
 				res.end('404 Not Found');
 			}
 		})
+
 		setTimeout(()=>{
 			res.writeHead(200, { 'Content-Type': 'text/html' })
-				// res.end(template(result.data));
-			res.end('Success !');
-		},3000)
+			res.end('Timeout ! ');
+		},7000)
 	}
-	common.Callback({ name:'DataBase.get', data:{
-		table:'pierced',
-		remote:remote,
-	}}).then((result)=>{
-		// console.log({ result })
-		if (result?.success && result?.data) {
-			const file = result.data 
-			if (file?.directory) {
-				// let archive = archiver('zip', {
-				// 	zlib: { level: 9 }, // 设置压缩级别
-				// });
-				// archive.directory(path.resolve(file.path), false);
-				// res.writeHead(200);
-				// archive.pipe(res);
-				// archive.finalize();
-			} else {
-				fs.stat(file.path, (err, stats) => {
-					if (!err) {
-						// 这个header用于支持断点续传
-						res.setHeader('Accept-Ranges', 'bytes');
-						res.setHeader('Content-Length', stats.size);
-						res.writeHead(200);
-						if (file.path.includes('.mp4')) {
-							res.writeHead(200, { 'Content-Type': 'video/mp4' });
+
+	if(remote?.length === 8){
+		common.Callback({ handle:'DataBase.get', table:'pierced', get:{ remote } }).then((result)=>{
+			if (result?.success && result?.data) {
+				const file = result.data 
+				if (file?.directory) {
+					// let archive = archiver('zip', {
+					// 	zlib: { level: 9 }, // 设置压缩级别
+					// });
+					// archive.directory(path.resolve(file.path), false);
+					// res.writeHead(200);
+					// archive.pipe(res);
+					// archive.finalize();
+				} else {
+					fs.stat(file.path, (err, stats) => {
+						if (!err) {
+							// 这个header用于支持断点续传
+							res.setHeader('Accept-Ranges', 'bytes');
+							res.setHeader('Content-Length', stats.size);
+							res.writeHead(200);
+							if (file.path.includes('.mp4')) {
+								res.writeHead(200, { 'Content-Type': 'video/mp4' });
+							}
+							fs.createReadStream(file.path).pipe(res);
 						}
-						fs.createReadStream(file.path).pipe(res);
-					}
-					if (err) {
-						res.writeHead(404);
-						res.end('404 Not Found');
-					}
-				})
+						if (err) {
+							res.writeHead(404);
+							res.end('404 File Not Found');
+						}
+					})
+				}
+			}else{
+				res.writeHead(404);
+				res.end('!404 Not Found')
 			}
-		}else{
-			res.writeHead(404);
-			res.end('404 Not Found')
-		}
-	})
+		})
+	}
 })
  
 function Requests(params){ 

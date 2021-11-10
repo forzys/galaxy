@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import ProLayout, { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Menu } from 'antd';
 import { Link } from 'umi';
-import Dexie from 'dexie';
 import { useUpdate } from '@/common/common'; 
 
 const waitTime = (time: number = 100) => {
@@ -15,8 +14,7 @@ const waitTime = (time: number = 100) => {
 
 export default React.memo((props: any) => {
 	const [state, setState, { uuid, common }] = useUpdate({});
-
-
+ 
 	useEffect(()=>{ 
 		common.DataBase.get({ table:'user' }).then((res:any)=>{ 
 			if(res.success){
@@ -28,24 +26,15 @@ export default React.memo((props: any) => {
 							domain:uid.slice(0,6),
 							port: 12345,
 						}
-					} 
-					common.DataBase.set({ table:'user', set: user }).then((ress:any)=>{
-						// console.log({ ress })
-					})
+					}
+					common.DataBase.set({ table:'user', set: user })
 				}
 			}
 		})
 	},[])
  
 	return (
-		<div
-			style={{
-				display: 'flex',
-				height: '100vh',
-				width: '100vw',
-				padding: 10,
-			}}
-		>
+		<div style={{ display: 'flex', height: '100vh', width: '100vw', padding: 10 }}>
 			<Card
 				className="_layout-menu"
 				style={{
@@ -88,6 +77,11 @@ export default React.memo((props: any) => {
 					<Menu.Item key="6" icon={<div />}>
 						<Link to="/wallpaper" title="壁纸"> 
 							壁纸 
+						</Link>
+					</Menu.Item>
+					<Menu.Item key="7" icon={<div />}>
+						<Link to="/todo" title="任务"> 
+							任务 
 						</Link>
 					</Menu.Item>
 				</Menu>
