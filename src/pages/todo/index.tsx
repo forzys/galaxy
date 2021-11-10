@@ -24,9 +24,7 @@ export default React.memo((props) => {
 					</div>
 				} 
 				style={{ width: 500 }} 
-				extra={
-					<div className='close'><Button icon={<div style={{color:'#ccc'}}>{Icons.Close}</div> } /> </div>
-				}
+				extra={ <Button className='close' icon={Icons.Close} />  }
 			>
 
 			</Card>

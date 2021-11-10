@@ -192,12 +192,13 @@ var Server = http.createServer((req,res)=>{
 	if(remote === ''){
 		res.writeHead(301, {'Location': `/index.html`});
 		res.end();
+		return
 	}
 
 	if (remote === 'index.html') {  
 		common.Callback({ handle:'DataBase.select', table:'pierced', page:1, pageSize: 100 }).then((result)=>{
 			if (result?.success) {
-				res.writeHead(200, {'Content-Type': 'text/html' }) 
+				res.writeHead(200, {'Content-Type': 'text/html;charset=utf-8' }) 
 				res.end(template?.piercedIndex(result.data)); 
 			} else {
 				res.writeHead(404);
@@ -209,6 +210,7 @@ var Server = http.createServer((req,res)=>{
 			res.writeHead(200, { 'Content-Type': 'text/html' })
 			res.end('Timeout ! ');
 		},7000)
+		return
 	}
 
 	if(remote?.length === 8){
@@ -246,7 +248,13 @@ var Server = http.createServer((req,res)=>{
 				res.end('!404 Not Found')
 			}
 		})
+		return
 	}
+
+	setTimeout(()=>{
+		res.writeHead(200, { 'Content-Type': 'text/html;charset=utf-8' })
+		res.end('Timeout 资源未找到！');
+	},10000)
 })
  
 function Requests(params){ 
