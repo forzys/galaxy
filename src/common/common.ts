@@ -6,10 +6,10 @@ const md5 = require('./core/md5.ts');
 const filesave = require('./core/filesave'); 
 const parserRss = require('./core/rss-parser')
 const parserM3U8 = require('./core/m3u8-parser')
+const videoJs = require('./core/video')
 
 export { Icons };
- 
-
+  
 
 
 export function filterSize(size: number) {
@@ -44,7 +44,7 @@ export function onGetHtmlString(props: any): any {
 		return onGetHtmlString(props?.());
 	}
 
-	if (typeof props === 'object' && props?.$$typeof === isReact) {
+	if (typeof props === 'object' && props?.$$typeof === Symbol.for('react.element')) {
 		if (typeof props?.props?.children === 'string') {
 			return props?.props?.children?.trim?.();
 		}
@@ -172,7 +172,7 @@ export function useUpdate(props: any = {}) {
 			request,
 			current,
 			md5,
-			uuid,
+			uuid,videoJs,
 			parserM3U8,
 			ref, parserRss,
 			router: history,
