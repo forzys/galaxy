@@ -34,6 +34,15 @@ export default React.memo((props) => {
 			errorDisplay: true, // 错误展示
 			width: 475, // 宽
 			height: 300, 
+			controlBar: {
+				// fullscreenToggle: true,//显示全屏按钮，默认为true
+				pictureInPictureToggle: false,// 画中画按钮，默认为true
+				// volumePanel: false,//隐藏声音面板
+				// currentTimeDisplay: true,//显示当前播放时间
+				// timeDivider: true,//显示时间分割线
+				// durationDisplay: true,//显示总时间
+				// remainingTimeDisplay: false,//隐藏剩余时间，
+			}
 		})})
 
 		return ()=>{
