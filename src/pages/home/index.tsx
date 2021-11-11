@@ -30,7 +30,7 @@ export default React.memo((props) => {
 		// 		// console.log({ makedown })
 		// 		setState({ makedown });
 		// 	});
-	}, []);
+	}, [])
 
 	function onReadLocalMd(e: any) {
 		const { files } = e.target;
