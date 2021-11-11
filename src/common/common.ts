@@ -5,6 +5,7 @@ import Icons from './icon';
 const md5 = require('./core/md5.ts');
 const filesave = require('./core/filesave'); 
 const parserRss = require('./core/rss-parser')
+const parserM3U8 = require('./core/m3u8-parser')
 
 export { Icons };
  
@@ -172,6 +173,7 @@ export function useUpdate(props: any = {}) {
 			current,
 			md5,
 			uuid,
+			parserM3U8,
 			ref, parserRss,
 			router: history,
 			filterSize,
