@@ -16,16 +16,7 @@ export default React.memo((props) => {
             dataParser: (line:any) => {
                 return line?.split(',')?.pop()
             }
-        }) 
-
-		// const videoPlayer = videoJs(ref.current, {
-		// 	autoplay: true, // 自动播放
-		// 	language: 'zh-CN',
-		// 	preload: 'auto', // 自动加载
-		// 	errorDisplay: true, // 错误展示
-		// 	width: 475, // 宽
-		// 	height: 300, 
-		// });
+        })
 
 		setState({ videoPlayer: videoJs(ref.current, {
 			autoplay: true, // 自动播放
@@ -35,20 +26,19 @@ export default React.memo((props) => {
 			width: 475, // 宽
 			height: 300, 
 			controlBar: {
-				// fullscreenToggle: true,//显示全屏按钮，默认为true
+				fullscreenToggle: true,//显示全屏按钮，默认为true
 				pictureInPictureToggle: false,// 画中画按钮，默认为true
-				// volumePanel: false,//隐藏声音面板
-				// currentTimeDisplay: true,//显示当前播放时间
-				// timeDivider: true,//显示时间分割线
-				// durationDisplay: true,//显示总时间
-				// remainingTimeDisplay: false,//隐藏剩余时间，
+				volumePanel: false,//隐藏声音面板
+				currentTimeDisplay: true,//显示当前播放时间
+				timeDivider: true,//显示时间分割线
+				durationDisplay: true,//显示总时间
+				remainingTimeDisplay: false,//隐藏剩余时间，
 			}
 		})})
 
 		return ()=>{
 			state?.videoPlayer?.dispose?.();
-		}
- 
+		} 
 	}, [])
 
 
@@ -62,7 +52,7 @@ export default React.memo((props) => {
             const txt = fa?.target?.result
             state?.parser.push(txt)
             state?.parser.end();
-            // console.log(state?.parser?.manifest)
+			
             const m3u8List = state?.parser?.manifest?.segments
             let list = m3u8List.slice(0, 100) 
             setState({ list })
@@ -95,33 +85,39 @@ export default React.memo((props) => {
                 />
 			</div>
 
-            <Card style={{width: 400, height: 600, overflow:'auto'}} title={<div style={{fontSize: 14}}>播放列表</div>}>
-                 
+
+			<div style={{ display:'flex'}}> 
+				<Card style={{width: 400, height: 600, overflow:'auto'}} title={<div style={{fontSize: 14}}>播放列表</div>}>
 					{
-                        state?.list?.map((i:any)=>{
-                            return (
-                                <div key={i.uri} onClick={()=>{
+						state?.list?.map((i:any)=>{
+							return (
+								<div key={i.uri} onClick={()=>{
 									state.videoPlayer.src?.(i.uri) 
 									state.videoPlayer?.load?.()
 								}}>{i?.custom?.info}</div>
-                            )
-                        })
-                    } 
-            </Card>
+							)
+						})
+					} 
+				</Card>
+				<Card>
+					<video
+						ref={ref}
+						id="videoPlay"
+						className="video-js vjs-default-skin vjs-big-play-centered"
+						width="100%"
+						height="100%"
+						controls
+					>
+						<track kind="captions" />
+						<p className="vjs-no-js">您的浏览器不支持HTML5，请升级浏览器。</p>
+					</video> 
+				</Card>
 
-			<Card>
-			<video
-				ref={ref}
-				id="videoPlay"
-				className="video-js vjs-default-skin vjs-big-play-centered"
-				width="100%"
-				height="100%"
-				controls
-			>
-				<track kind="captions" />
-				<p className="vjs-no-js">您的浏览器不支持HTML5，请升级浏览器。</p>
-			</video> 
-			</Card>
+			</div>
+
+         
+
+			
 		</Spin>
 	);
 });
