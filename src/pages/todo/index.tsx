@@ -11,9 +11,22 @@ export default React.memo((props) => {
 	const [state, setState] = useUpdate({});
 
 
-	function onCheckboxChange(e){
-		console.log({ e })
+	function onCheckboxChange(e:any){
+		e.preventDefault();
+		e.stopPropagation();
+		console.log('e',{ e }) 
+		let checkeds = state.checkeds || {}
+		let value = e.target.value 
+		let check =  e.target.checked 
+		checkeds[value] = check 
+		setState({ checkeds })
 
+	}
+
+	function onCheckboxClick(e:any){
+		e.preventDefault();
+		e.stopPropagation();
+		console.log({ e })
 	}
 	return (
 		<div>
@@ -31,11 +44,11 @@ export default React.memo((props) => {
 						<div style={{ flex:1 }}></div>
 					</div>
 				} 
-				style={{ width: 500 }} 
+				style={{ maxWidth:700, minWidth:450, width:'30vw', }} 
 				extra={ <Button className='close' icon={Icons.Close} />  }
 			> 
 
-				<div style={{ width:'100%', height:'20vh', display:'flex'}}>
+				<div style={{ width:'100%', height:'30vh', display:'flex'}}>
 					<div style={{flex:1,overflow:'hidden', height:'100%' }}>
 						<ul className='todo-list'>
 							{
@@ -43,11 +56,12 @@ export default React.memo((props) => {
 									return (
 										<li key={i} className='todo-item'>
 											<Checkbox 
-												value={i.toString()} 
+												value={i.toString()}
+												defaultChecked={false}
 												checked={state?.checkeds?.[i]} 
-												onChange={onCheckboxChange}
+												onClick={onCheckboxChange}  
 											> 
-												<ActiveEllipsis delay={3000} maxLength={10}>Checkbox--------------{i}</ActiveEllipsis> 
+												<ActiveEllipsis delay={1.1} onClick={onCheckboxClick}>Checkbox-----sdfsdfg---------{i}</ActiveEllipsis> 
 											</Checkbox> 
 										</li>
 									)

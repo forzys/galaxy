@@ -11,10 +11,8 @@ export default React.memo((props: any )=>{
 
     useEffect(()=>{
         let childrenCon = onGetHtmlString(props.children)
-
-        console.log({ L: props.children })
-        let len = childrenCon?.length || 0
-        console.log({ len,childrenCon })
+ 
+        let len = childrenCon?.length || 0 
         setState({ len })
     },[props.children])
 
@@ -22,33 +20,31 @@ export default React.memo((props: any )=>{
 
     return (
         
-        <div>
-
-             {
-                 props?.maxLength ? (
-                     <>
-                     {
-                         state?.len > props?.maxLength ? (
-                            <Tooltip
-                                placement={props?.placement}
-                                overlayStyle={{ wordBreak: 'break-all' }}
-                                
-                                title={
-                                    <div className="ellipsis line-x" style={{ '--line-x': 10 } as any}>
-                                        {props.children}
-                                    </div>
-                                }
-                            >
-                                <div className="ellipsis line-x" 
-                                    style={{ wordBreak: 'break-all', whiteSpace: 'pre-line', '--line-x': props?.line || 1, width: props?.width } as any}>
+        <div onClick={props?.onClick}> 
+            {
+                props?.tips && (
+                    state?.len > (props?.maxLength || 10) && (
+                        <Tooltip
+                            placement={props?.placement}
+                            overlayStyle={{ wordBreak: 'break-all' }}
+                            mouseEnterDelay={props?.delay}
+                            title={
+                                <div className="ellipsis line-x" style={{ '--line-x': 5 } as any}>
                                     {props.children}
                                 </div>
-                                </Tooltip>
-                         ): props.children
-                     }
-                     </>
-                 ): props?.children
-             } 
+                            }
+                        >
+                        <div className="ellipsis word-break line-x" style={{ '--line-x': props?.line || 1, width: props?.width } as any}>
+                            {props.children}
+                        </div>
+                    </Tooltip>
+                    )
+                ) || (
+                    <div className="ellipsis word-break line-x" style={{ '--line-x': props?.line || 1, width: props?.width } as any}>
+                        {props.children}
+                    </div>
+                ) 
+            }              
         </div>
     )
 
