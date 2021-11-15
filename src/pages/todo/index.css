@@ -1,0 +1,23 @@
+
+.todo-list{
+    overflow-x:hidden;
+    overflow-y:auto;
+    height:100%;
+    padding: 0 6px;
+    padding-right:12px;
+}
+
+
+.todo-item {
+    margin: 6px 0;
+
+    background: linear-gradient(rgb(231, 220, 154), #d5b57f) padding-box,
+		repeating-linear-gradient(
+			-45deg,
+			#ccc 0,
+			#ccc 0.25em,
+			white 0,
+			white 0.75em
+		);
+
+}

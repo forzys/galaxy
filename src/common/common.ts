@@ -39,6 +39,9 @@ export function onGetHtmlString(props: any): any {
 	if (typeof props === 'string') {
 		return props?.trim?.();
 	}
+	if (typeof props === 'number') {
+		return props
+	}
 
 	if (typeof props === 'function') {
 		return onGetHtmlString(props?.());
@@ -47,7 +50,7 @@ export function onGetHtmlString(props: any): any {
 	if (typeof props === 'object' && props?.$$typeof === Symbol.for('react.element')) {
 		if (typeof props?.props?.children === 'string') {
 			return props?.props?.children?.trim?.();
-		}
+		} 
 		if (Array.isArray(props?.props?.children)) {
 			let _temp = '';
 			for (let i = 0; i < props?.props?.children?.length; i += 1) {
@@ -55,6 +58,13 @@ export function onGetHtmlString(props: any): any {
 			}
 			return _temp;
 		}
+	}
+	if (Array.isArray(props)) {
+		let _temp = '';
+		for (let i = 0; i < props?.length; i += 1) {
+			_temp += onGetHtmlString(props?.[i]);
+		}
+		return _temp;
 	}
 	return '';
 }

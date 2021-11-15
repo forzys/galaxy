@@ -14,10 +14,27 @@ aside.ant-layout-sider.ant-pro-sider-layout-side {
 		}
 	}
 }
+.ellipsis {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: inherit;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	/*! autoprefixer: off */
+	-webkit-box-orient: vertical;
+	/*! autoprefixer: on */
+}
 
-// div{
-//   // outline: 1px solid red;
-// }
+.line-2 {
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+}
+
+.ellipsis.line-x {
+	-webkit-line-clamp: var(--line-x, 3);
+	line-clamp: var(--line-x, 3);
+}
 
 @media screen and (max-width: 560px) {
 	._layout-menu {
@@ -167,4 +184,10 @@ aside.ant-layout-sider.ant-pro-sider-layout-side {
 		min-height: 150px;
 		border-radius: 7px;
 	}
+}
+
+ul,
+li {
+	list-style: none;
+	padding: 0;
 }
