@@ -7,34 +7,27 @@ import ActiveEllipsis from '@/components/activeEllipsis';
 import './index.css'
 
 export default React.memo((props) => {
-	console.log({ props });
 	const [state, setState] = useUpdate({});
-
-
+ 
 	function onCheckboxChange(e:any){
-		e.preventDefault();
-		e.stopPropagation();
-		console.log('e',{ e }) 
 		let checkeds = state.checkeds || {}
 		let value = e.target.value 
 		let check =  e.target.checked 
 		checkeds[value] = check 
-		setState({ checkeds })
-
+		setState({ checkeds }) 
 	}
 
 	function onCheckboxClick(e:any){
 		e.preventDefault();
-		e.stopPropagation();
-		console.log({ e })
+		e.stopPropagation(); 
+		console.log({ e , value: e?.target?.value})
 	}
+
 	return (
 		<div>
 			<h1 style={{ textAlign: 'center' }}> —ToDo—— </h1>
 			<Button onClick={() => history.push('/')}> GoBack</Button>
-
-			<div style={{marginTop: 30 }}> </div>
-
+			<div style={{ marginTop: 30 }}> </div>
 			<Card 
 				className='todo_custom' 
 				title={
@@ -59,10 +52,11 @@ export default React.memo((props) => {
 												value={i.toString()}
 												defaultChecked={false}
 												checked={state?.checkeds?.[i]} 
-												onClick={onCheckboxChange}  
-											> 
-												<ActiveEllipsis delay={1.1} onClick={onCheckboxClick}>Checkbox-----sdfsdfg---------{i}</ActiveEllipsis> 
+												onChange={onCheckboxChange}  
+											>  
+												<ActiveEllipsis delay={1.1} onClick={onCheckboxClick} value={i}> Checkbox-----sdfsdfg---------{i}</ActiveEllipsis> 
 											</Checkbox> 
+											
 										</li>
 									)
 								})
@@ -71,7 +65,7 @@ export default React.memo((props) => {
 					</div>
  
 					<div style={{ flex: 1, height:'100%', border: '1px solid #ccc' }}>
-						 000
+						000
 					</div>
 				</div>
 			</Card>
