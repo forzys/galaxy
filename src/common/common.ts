@@ -8,7 +8,15 @@ const parserRss = require('./core/rss-parser')
 const parserM3U8 = require('./core/m3u8-parser')
 const videoJs = require('./core/video')
 
-export { Icons };
+
+
+
+const fontAnimate = require('./others/fonts')
+
+
+
+console.log({  fontAnimate })
+export { Icons, fontAnimate };
   
 
 
