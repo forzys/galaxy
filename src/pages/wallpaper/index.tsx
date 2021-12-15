@@ -1,6 +1,6 @@
 import { Button, Result,message } from 'antd';
 import React from 'react'; 
-import { useUpdate } from '@/common/common';
+import { useUpdate,fontAnimate } from '@/common/common';
 
 export default React.memo((props) => { 
   const [state, setState, { bridge,handle, current}] = useUpdate({});
@@ -9,28 +9,19 @@ export default React.memo((props) => {
 	e.preventDefault();
 	e.stopPropagation();
 	const files = e.dataTransfer.files;
-	console.log({files})
  
-	if(files[0]?.path) { 
-
-		// http://localhost:8000
-
+ 
+	if(files[0]?.path) {
 		handle?.({
 			handle:'Events.setWallpaper',
-			name:'wallpaper', 
-			// path:`"hkcu\\control panel\\desktop"`,
+			name:'wallpaper',  
 			path:files[0]?.path,
-		}).then((res)=>{
+		}).then((res:any)=>{
 			console.log({ res }) 
 			message.success('success');
 		})
 	}
-	
-	// bridge
-	// ?.onSetWallpaper?.({ wallpaper: files[0]?.path })
-	// ?.then((result: any) => {
-	// 	message.success('success'); 
-	// }); 
+	 
   }
 
 	function onDragEnter(e: any) {
@@ -59,35 +50,40 @@ export default React.memo((props) => {
 	} 
 
 
-	console.log({ handle })
+
+	React.useLayoutEffect(()=>{
+		fontAnimate({})
+	},[])
+
+
+	
+ 
  
 	return (
-	<div
-		onDragOver={onDragOver}
-		onDragEnter={onDragEnter}
-		onDragLeave={onDragLeave}
-		onDrop={(e: any) => {
-			e.preventDefault();
-			e?.currentTarget?.classList?.remove('mask');
-			current.dragBox.classList.remove('show');
-			current.dragBox.classList.add('hidden');
-		}}
-		style={{ width: '100vh', height: '100vh' }}
-	>
-		<h1 style={{ textAlign: 'center' }} onClick={()=>{
-			handle?.({ name: 'test', a:9}).then((res)=>{
-			console.log('success',res)
-		})}}> 壁纸 </h1>
-
-	  
 		<div
-			onDragOver={(e) => e.preventDefault()}
-			className="drag_box hidden"
-			onDrop={onFilesDrag}
-			ref={(e) => {
-				current.dragBox = e;
+			onDragOver={onDragOver}
+			onDragEnter={onDragEnter}
+			onDragLeave={onDragLeave}
+			onDrop={(e: any) => {
+				e.preventDefault();
+				e?.currentTarget?.classList?.remove('mask');
+				current.dragBox.classList.remove('show');
+				current.dragBox.classList.add('hidden');
 			}}
-		/>
-	</div>
+			style={{ width: '100vh', height: '100vh' }} 
+		>
+
+			<h1 className='bubbling' style={{ textAlign: 'center',background:'#3498db' }}> 壁纸 </h1>
+
+		
+			<div
+				onDragOver={(e) => e.preventDefault()}
+				className="drag_box hidden"
+				onDrop={onFilesDrag}
+				ref={(e) => {
+					current.dragBox = e;
+				}}
+			/>
+		</div>
 );
 });
